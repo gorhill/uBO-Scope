@@ -122,6 +122,37 @@ Since the page is loading resources from two of Facebook servers, the safest ass
 
 This should bother any privacy conscious individual. If you are using uBlock Origin, you can act to what uBO-Scope is reporting to you, and in the current case, you could decide to [block connections to `facebook.com` and `facebook.net` everywhere by default](https://github.com/gorhill/uBlock/wiki/Dynamic-filtering:-to-easily-reduce-privacy-exposure).
 
+Thankfully, the most ubiquitous 3rd party was actually blocked for that page:
+
+![](https://cloud.githubusercontent.com/assets/585534/23466204/6aa1d90c-fe68-11e6-8e43-032f1be7d870.png)
+
 ***
+
+Now will uBO-Scope report if I disable uBlock Origin for that site? Here is the result, the actual 3rd-party exposure sore is now **230**. Notice how the averted 3rd-party exposure score also climbed, to **353**.
+
+![](https://cloud.githubusercontent.com/assets/585534/23466213/6f4b77ba-fe68-11e6-8ed6-85099092605f.png)
+
+Wait... Since nothing is blocked anymore on the page, how can the averted score be different than the sctual score?
+
+It is very important to keep in mind that **3rd-party exposure scores are computed according to whatever data has been fed to uBO-Scope so far**.
+
+For example, `google-analytics.com` is quite ubiquitous **in theory**, as reported by uBO-Scope, but the **actual** ubiquitousness of `google-analytics.com` is atill low after disabling uBlock Origin in the example above, because it was actually blocked **everywhere else**.
+
+However if you would be so foolish as to whitelist `google-analytics.com`, the ubiquitousness of `google-analytics.com` as 3rd party would increase as you browser various sites, and you scores would climb accordingly over time.
+
+***
+
+This is the results I got in the browsing profile for which no blocker at all was used:
+
+![](https://cloud.githubusercontent.com/assets/585534/23466219/744a12b2-fe68-11e6-9746-aefe44151bc0.png)
+
+Notice how the actual score pretty much matches the averted score when not using a blocker (the difference is down to "noise", I will cover this eventually elsewhere).
+
+***
+
+And this is the result I got in the browsing profile for which [uBlock Origin in medium mode](https://github.com/gorhill/uBlock/wiki/Blocking-mode:-medium-mode) was used (two local "noop" rules where created for `guardianapps.co.uk` and `guim.co.uk` and the page rendered just fine):
+
+![](https://cloud.githubusercontent.com/assets/585534/23466225/771165d6-fe68-11e6-9023-691a66420703.png)
+
 
 [under work]
