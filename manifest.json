@@ -12,12 +12,7 @@
         "default_title": "uBO-Scope",
         "default_popup": "popup.html"
     },
-    "content_scripts": [{
-        "matches": ["<all_urls>"],
-        "js": ["js/contentscript.js"],
-        "run_at": "document_start"
-    }],
-    "description": "Measure stuff",
+    "description": "A tool to measure your 3rd-party exposure score for web sites you visit.",
     "icons": {
         "16": "img/browsericons/logo16.png",
         "32": "img/browsericons/logo32.png",
