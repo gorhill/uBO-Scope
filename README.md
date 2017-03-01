@@ -170,7 +170,7 @@ Unfortunately these privacy-respecting web sites are not the norm:
 
 ![](https://cloud.githubusercontent.com/assets/585534/23470517/9622f4d8-fe74-11e6-8829-b046f6c81c3e.png)
 
-But there are tools out there to deal with this. That is [uBlock Origin in medium mode](https://github.com/gorhill/uBlock/wiki/Blocking-mode:-medium-mode) below:
+But there are tools out there to deal with this. That is [uBlock Origin in medium mode](https://github.com/gorhill/uBlock/wiki/Blocking-mode:-medium-mode) below (only `nyt.com` was noop-ed):
 
 ![](https://cloud.githubusercontent.com/assets/585534/23470524/99266dc2-fe74-11e6-8aee-1563ac5a9c89.png)
 
