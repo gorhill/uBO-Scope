@@ -28,7 +28,7 @@ I have found two glitches when the extension is used with Firefox:
 
 ## How it works
 
-uBO-Scope does not alter network traffic, it _only_ observes it. For every network request, blocked or allowed, it will extract the base domain name. If the base domain name of the network request is 3rd-party to base domain name extracted from the URL of the web page, it will store the pair [3rd-party base domain name, 1st-party base domain name], to be used forward to compute and show your overall 3rd-party exposure score of web pages you visit in the future.
+uBO-Scope does not alter network traffic, it _only_ observes it. For every network request, blocked or allowed, it will extract the base domain name. If the base domain name of the network request is different than the base domain name extracted from the URL of the web page, the network request will be deemed 3rd-party and uBO-Scope will store the pair [3rd-party base domain name, 1st-party base domain name] in its database, to be used to compute and show your overall 3rd-party exposure score of web pages you visit in the future.
 
 Your 3rd-party exposure score depends on your past browsing history and the tools you used (if any) which have blocked network requests, and how these tools (if any) are configured. uBO-Scope does not depend on uBlock Origin to do its job, it will work with any content blocker, or no content blocker.
 
