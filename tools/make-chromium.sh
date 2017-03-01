@@ -2,10 +2,10 @@
 #
 # This script assumes a linux environment
 
-echo "*** uBO-Scope.webext: Creating web store package"
-echo "*** uBO-Scope.webext: Copying files"
+echo "*** uBO-Scope.chromium: Creating web store package"
+echo "*** uBO-Scope.chromium: Copying files"
 
-DES=dist/build/uBO-Scope.webext
+DES=dist/build/uBO-Scope.chromium
 rm -rf $DES
 mkdir -p $DES
 
@@ -19,10 +19,10 @@ cp LICENSE.txt               $DES/
 cp README.md                 $DES/
 
 if [ "$1" = all ]; then
-    echo "*** uBO-Scope.webext: Creating package..."
-    pushd $DES > /dev/null
-    zip ../$(basename $DES).zip -qr *
+    echo "*** uBO-Scope.chromium: Creating package..."
+    pushd $(dirname $DES) > /dev/null
+    zip uBO-Scope.chromium.zip -qr $(basename $DES)/*
     popd > /dev/null
 fi
 
-echo "*** uBO-Scope.webext: Package done."
+echo "*** uBO-Scope.chromium: Package done."
