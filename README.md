@@ -108,5 +108,20 @@ Back to heatmap view from list view:
 ![](https://cloud.githubusercontent.com/assets/585534/23466193/63bf2cc0-fe68-11e6-86fc-385ec2eed540.png)
 
 ***
+Hovering your cursor of a heatmap cell (a.k.a. 3rd party) will bring up details about that 3rd party.
+
+So in the current case, it is found that `facebook.com` was the most ubiquitous 3rd party not being blocked when the page loaded.
+
+![](https://cloud.githubusercontent.com/assets/585534/23466200/6601a51c-fe68-11e6-935b-6df7c245a835.png)
+
+The other most ubiquitous 3rd party which was not blocked is `facebook.net`:
+
+![](https://cloud.githubusercontent.com/assets/585534/23466202/685d4438-fe68-11e6-90f6-fbd12c83e420.png)
+
+Since the page is loading resources from two of Facebook servers, the safest assumption to make is that now Facebook knows that you visited this one The Guardian article.
+
+This should bother any privacy conscious individual. If you are using uBlock Origin, you can act to what uBO-Scope is reporting to you, and in the current case, you could decide to [block connections to `facebook.com` and `facebook.net` everywhere by default](https://github.com/gorhill/uBlock/wiki/Dynamic-filtering:-to-easily-reduce-privacy-exposure).
+
+***
 
 [under work]
