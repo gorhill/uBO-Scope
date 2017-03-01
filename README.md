@@ -24,7 +24,7 @@ Early development version. **DO NOT REQUEST FEATURES.**
 
 I have found two glitches when the extension is used with Firefox:
 
-- uBO-Scope can't see network requests which have been redirected to `data:` URIs. This is quite a crippling issue for uBO-Scope when used with content blockers which do that sort of things (uBlock Origin does). It means it will be unable to report accurately 3rd-party exposure scores. For instance, uBlock Origin redirects Google Analytics and Google Tag Manager scripts to local neutered versions, and uBO-Scope is unable to see this in Firefox. Given how Google Analytics and Google Tag Manager are ubiquitous, that will be rather important pieces of data being invisible to uBO-Scope. Hopefully this issue will be solved by Firefox developers.
+- uBO-Scope won't be able to see blocked network requests from legacy blockers if these have been enabled **before** uBO-Scope. I believe this can be addressed by installing uBO-Scope before installing legacy blockers. (uBlock Origin is currently a legacy blocker on AMO -- the webext version is not ready yet).
 
 - The popup panel does not always display as intended. Sometimes there are spurious scrollbars appearing, while they definitely should not appear.
 
