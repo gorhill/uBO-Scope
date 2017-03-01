@@ -93,4 +93,16 @@ Notice that I used and emphasized the word **minimally** above. This is because 
 
 ![](https://cloud.githubusercontent.com/assets/585534/23466176/5ca61714-fe68-11e6-9431-8df766719e79.png)
 
+***
+
+For convenience, you can have the heatmap render as a list.
+
+![](https://cloud.githubusercontent.com/assets/585534/23466180/5ec0470e-fe68-11e6-80dd-3abb29545dd3.png)
+
+***
+
+There is also a filter button to filter out all the 3rd parties for which there was no network connection.
+
+![](https://cloud.githubusercontent.com/assets/585534/23466185/6166a048-fe68-11e6-9407-cb3004573dd6.png)
+
 [under work]
