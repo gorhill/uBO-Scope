@@ -138,7 +138,7 @@ It is very important to keep in mind that **3rd-party exposure scores are comput
 
 For example, `google-analytics.com` is quite ubiquitous **in theory**, as reported by uBO-Scope, but the **actual** ubiquitousness of `google-analytics.com` is still low after disabling uBlock Origin in the example above, because it was actually blocked **everywhere else** so far.
 
-However if you would be so foolish as to whitelist `google-analytics.com`, the ubiquitousness of `google-analytics.com` as 3rd party would increase as you browser various sites, and you scores would climb accordingly over time.
+However if you would be so foolish as to whitelist `google-analytics.com`, the ubiquitousness of `google-analytics.com` as 3rd party would increase as you browse various sites and your 3rd party exposure scores would climb accordingly over time.
 
 ***
 
