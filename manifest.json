@@ -1,0 +1,45 @@
+{
+    "author": "Raymond Hill",
+    "background": {
+        "page": "background.html"
+    },
+    "browser_action": {
+        "default_icon": {
+            "16": "img/browsericons/logo16.png",
+            "32": "img/browsericons/logo32.png",
+            "64": "img/browsericons/logo64.png"
+        },
+        "default_title": "uBO-Scope",
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [{
+        "matches": ["<all_urls>"],
+        "js": ["js/contentscript.js"],
+        "run_at": "document_start"
+    }],
+    "description": "Measure stuff",
+    "icons": {
+        "16": "img/browsericons/logo16.png",
+        "32": "img/browsericons/logo32.png",
+        "64": "img/browsericons/logo64.png",
+        "128": "img/browsericons/logo128.png"
+    },
+    "manifest_version": 2,
+    "minimum_chrome_version": "45.0",
+    "name": "uBO-Scope",
+    "options_ui": {
+        "page": "options.html",
+        "chrome_style": true
+    },
+    "permissions": [
+        "alarms",
+        "storage",
+        "tabs",
+        "unlimitedStorage",
+        "webNavigation",
+        "webRequest",
+        "<all_urls>"
+    ],
+    "short_name": "uBO-Scope",
+    "version": "0.1.0"
+}
