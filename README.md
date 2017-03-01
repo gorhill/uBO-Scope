@@ -29,7 +29,8 @@ I have found two glitches when the extension is used with Firefox:
 ## Installation
 
 - Manual installation from [Releases page](https://github.com/gorhill/uBO-Scope/releases)
-- Chrome store: <https://chrome.google.com/webstore/detail/bbdpgcaljkaaigfcomhidmneffjjjfgp/>
+- Chrome store: <https://chrome.google.com/webstore/detail/bbdpgcaljkaaigfcomhidmneffjjjfgp/> (currently "pending review")
+- Mozilla's AMO: I will publish once the Firefox-specific quirk mentioned above is fixed.
 
 ## How it works
 
