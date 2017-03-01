@@ -156,6 +156,16 @@ And this is the result I got in the browsing profile for which [uBlock Origin in
 
 ***
 
+uBO-Scope will show you that not all web sites are eager to rely on so many 3rd parties -- probably safe to assume they genuinely respect the privacy of their visitors:
+
+![](https://cloud.githubusercontent.com/assets/585534/23470329/17db0b10-fe74-11e6-96ee-35d1261483fa.png)
+
+![](https://cloud.githubusercontent.com/assets/585534/23470331/19902ce2-fe74-11e6-8661-e2700817ecd5.png)
+
+![](https://cloud.githubusercontent.com/assets/585534/23470338/1dcc7a22-fe74-11e6-8cbf-9bdb44f3a463.png)
+
+***
+
 The few settings which you can configure in uBO-Scope:
 
 ![](https://cloud.githubusercontent.com/assets/585534/23466205/6cb8269c-fe68-11e6-8aa7-9546e4cd4414.png)
