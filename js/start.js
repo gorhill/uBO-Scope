@@ -888,10 +888,27 @@ uBOScope.start = function() {
 
     // When there is no matching request entry, this means a request was 
     // redirected to  a data: URI by an extension.
-    // See <https://developer.chrome.com/extensions/webRequest>.
+    // See <https://developer.chrome.com/extensions/webRequest>:
+    // > The web request API guarantees that for each request either
+    // > onCompleted or onErrorOccurred is fired as the final event with one
+    // > exception: If a request is redirected to a data:// URL,
+    // > onBeforeRedirect is the last reported event.
+    //
+    // When a URL is redirected to a data: URI:
+    // - Chromium: onSendHeaders is never called.
+    // - Firefox: onSendHeaders IS called.
+    // So an extra test is needed to find out whether there was an actual
+    // connection to a remote server. Currently testing status code, but this
+    // will be an issue if ever Firefox aligns its behavior to that of
+    // Chromium, as the latter contains a valid status code of 307. If this
+    // ever happens, maybe using details.ip?
+    let reInternalURL = /^data:/;
+
     self.browser.webRequest.onBeforeRedirect.addListener(
         function(details) {
-            if ( requestIds.has(details.requestId) === false ) {
+            let noConnection = requestIds.has(details.requestId) === false ||
+                !details.statusCode;
+            if ( noConnection && reInternalURL.test(details.redirectUrl) ) {
                 requestIds.delete(details.requestId);
                 ubo.processRequest(details, true);
                 updateTabBadge(details.tabId);
