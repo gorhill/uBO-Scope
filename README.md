@@ -61,4 +61,22 @@ Since the primary purpose of uBO-Scope is to inform about 3rd-party exposure, it
 
 For the purpose of this walkthrough, I created four distinct browsing profiles (using Chromium's "Person" feature), and visited the 120 [top story links of Hacker News for the past year](http://www.hntoplinks.com/year). The screenshots reflect this (short) "browsing history".
 
-[working more on this once the project is added as a GitHub repo]
+Now with some meaningful browsing history created, let's visit this [The Guardian's article](https://www.theguardian.com/environment/2017/feb/28/shell-film-warning-climate-change-rate-faster-than-end-ice-age).
+
+***
+
+The following screenshot was taken from the "uBlock Origin default" profile.
+
+The 3rd-party exposure score for the page is **53**.
+
+Notice the **3rd-party exposure heatmap**. Each cell in the heatmap correspond to a distinct 3rd party.
+
+The darker the cell, the more ubiquitous the 3rd party. Keep in mind that ubiquitousness is computed from **your** past browsing history.
+
+Greyed heatmap cells correspond to 3rd parties which were blocked, i.e. something in your browser (likely an extension) prevented the connection to the remote server. Not connecting to 3rd parties which are useless to **you** is a good thing.
+
+![](https://cloud.githubusercontent.com/assets/585534/23466172/58e7cdc0-fe68-11e6-911a-6ec1f53463c8.png)
+
+***
+
+[under work]
