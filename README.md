@@ -160,4 +160,6 @@ The few settings which you can configure in uBO-Scope:
 
 ![](https://cloud.githubusercontent.com/assets/585534/23466205/6cb8269c-fe68-11e6-8aa7-9546e4cd4414.png)
 
-Notice that you can export the data. This will create a JSON file containing the data uBO-Scope uses to calculate 3rd-party exposure. A whole lot more of insights can be obtain with this data, and I do plan to provide more ways for users to visualize their own data.
+Notice that you can export the data. This will create a JSON file containing the data uBO-Scope uses to calculate 3rd-party exposure scores. A whole lot more of insights can be obtained with this data, and I do plan to provide more ways for users to visualize their own data -- but with the ability to export this data you can manipulate your own data as you wish.
+
+Ability to import is not implemented yet.
