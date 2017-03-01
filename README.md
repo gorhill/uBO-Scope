@@ -79,4 +79,14 @@ Greyed heatmap cells correspond to 3rd parties which were blocked, i.e. somethin
 
 ***
 
+Notice that there are two 3rd-party exposure scores. The larger one is the actual 3rd-party exposure score, i.e. the score according to what **actually** occurred during page load.
+
+The smaller one is the **averted 3rd-party exposure score**. It represents the 3rd-party exposure you would have **minimally** subjected yourself if no network request had been blocked when the page loaded.
+
+Click on either of the 3rd-party exposure scores will cause the heatmap to switch between actual and averted view. The purpose of the averted view is to provide some sense of what would have happened if no network request had been blocked.
+
+Notice that I used and emphasized the word **minimally** above. This is because typically, on pages which rely on a lot of 3rd parties, quite commonly many 3rd party resources loaded in your browser will cause **more** 3rd party resources to be loaded, which resources could not be seen by uBO-Scope when resources from the first wave of 3rd parties were blocked.
+
+![](https://cloud.githubusercontent.com/assets/585534/23466176/5ca61714-fe68-11e6-9431-8df766719e79.png)
+
 [under work]
