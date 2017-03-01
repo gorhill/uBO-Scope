@@ -108,7 +108,7 @@ Back to heatmap view from list view:
 ![](https://cloud.githubusercontent.com/assets/585534/23466193/63bf2cc0-fe68-11e6-86fc-385ec2eed540.png)
 
 ***
-Hovering your cursor of a heatmap cell (a.k.a. 3rd party) will bring up details about that 3rd party.
+Hovering your cursor over a heatmap cell (a.k.a. 3rd party) will bring up details about that 3rd party.
 
 So in the current case, it is found that `facebook.com` was the most ubiquitous 3rd party not being blocked when the page loaded.
 
