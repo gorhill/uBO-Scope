@@ -8,6 +8,8 @@ Data created on a remote server as a result of you merely connecting to that ser
 
 To inform you about your own third-party exposure on the web pages you visit through a **third party exposure score**.
 
+Important: **The lower the 3rd-party exposure score, the better.**
+
 Third-party ("3rd-party") exposure is quite an important component of the more general concept of privacy exposure.
 
 In the scope of uBO-Scope, "3rd-party" is defined as follow:
