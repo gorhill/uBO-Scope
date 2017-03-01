@@ -580,7 +580,6 @@ uBOScope.loadPrivexData = function(callback) {
             return;
         }
         var privexData = this.privexDataFromExportData(bin.privexData);
-        self.browser.storage.local.remove('privexDatabase');
         if ( this.privexData.domainIdGenerator < privexData.domainIdGenerator ) {
             this.privexData.domainIdGenerator = privexData.domainIdGenerator;
         }

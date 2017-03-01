@@ -29,9 +29,7 @@
     "permissions": [
         "alarms",
         "storage",
-        "tabs",
         "unlimitedStorage",
-        "webNavigation",
         "webRequest",
         "<all_urls>"
     ],
