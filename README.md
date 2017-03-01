@@ -26,6 +26,11 @@ I have found two glitches when the extension is used with Firefox:
 
 - The popup panel does not always display as intended. Sometimes there are spurious scrollbars appearing, while they definitely should not appear.
 
+## Installation
+
+- Manual installation from [Releases page](https://github.com/gorhill/uBO-Scope/releases)
+- Chrome store: <https://chrome.google.com/webstore/detail/bbdpgcaljkaaigfcomhidmneffjjjfgp/>
+
 ## How it works
 
 uBO-Scope does not alter network traffic, it _only_ observes it. For every network request, blocked or allowed, it will extract the base domain name. If the base domain name of the network request is different from the base domain name extracted from the URL of the web page, the network request will be deemed 3rd-party and uBO-Scope will store the pair [3rd-party base domain name, 1st-party base domain name] in its database, to be used to compute and show your overall 3rd-party exposure score of web pages you visit in the future.
