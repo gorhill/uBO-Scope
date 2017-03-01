@@ -109,7 +109,7 @@ var renderPanel = function(data) {
     if ( Array.isArray(data.domainToAuthorityInfo) ) {
         domainToAuthorityInfoMap = new Map(data.domainToAuthorityInfo);
     }
-    // Order connected 3rd parties from most ubiquitous to least ubiquitous
+    // Order 3rd parties from most ubiquitous to least ubiquitous
     data.all.tab3parties.sort(function(a, b) {
         var av = all3rdToCountMap.get(a),
             bv = all3rdToCountMap.get(b);
