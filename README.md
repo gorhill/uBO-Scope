@@ -73,7 +73,7 @@ Notice the **3rd-party exposure heatmap**. Each cell in the heatmap correspond t
 
 The darker the cell, the more ubiquitous the 3rd party. Keep in mind that ubiquitousness is computed from **your** past browsing history.
 
-Heatmap cells are ordered from the most ubiquitous to the least ubiquitous, from left to right then top to bottom. The most ubiquitous 3rd party used by the current page is the top left cell.
+Heatmap cells are ordered from the most ubiquitous to the least ubiquitous, from left to right then top to bottom. The most ubiquitous 3rd party used by the current page is the top left cell. In the screenshot below, the most ubiquitous 3rd party is `google-analytics.com` (which is blocked by uBlock Origin + default settings).
 
 Greyed heatmap cells correspond to 3rd parties which were blocked, i.e. something in your browser (likely an extension) prevented the connection to the remote server. Not connecting to 3rd parties which are useless to **you** is a good thing.
 
