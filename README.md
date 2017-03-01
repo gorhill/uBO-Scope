@@ -128,7 +128,7 @@ Thankfully, the most ubiquitous 3rd party was actually blocked for that page:
 
 ***
 
-Now what will uBO-Scope report if I disable uBlock Origin for that site? Here is the result, the actual 3rd-party exposure sore is now **230**. Notice how the averted 3rd-party exposure score also climbed, to **353**.
+Now what will uBO-Scope report if I disable uBlock Origin for that site? Here is the result, the actual 3rd-party exposure score is now **230**. Notice how the averted 3rd-party exposure score also climbed, to **353**.
 
 ![](https://cloud.githubusercontent.com/assets/585534/23466213/6f4b77ba-fe68-11e6-8ed6-85099092605f.png)
 
