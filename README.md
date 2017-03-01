@@ -172,7 +172,7 @@ Unfortunately these privacy-respecting web sites are not the norm:
 
 But there are tools out there to deal with this. That is [uBlock Origin in medium mode](https://github.com/gorhill/uBlock/wiki/Blocking-mode:-medium-mode) below:
 
-![https://cloud.githubusercontent.com/assets/585534/23470524/99266dc2-fe74-11e6-8aee-1563ac5a9c89.png]()
+![](https://cloud.githubusercontent.com/assets/585534/23470524/99266dc2-fe74-11e6-8aee-1563ac5a9c89.png)
 
 ***
 
