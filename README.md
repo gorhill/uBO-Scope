@@ -73,6 +73,8 @@ Notice the **3rd-party exposure heatmap**. Each cell in the heatmap correspond t
 
 The darker the cell, the more ubiquitous the 3rd party. Keep in mind that ubiquitousness is computed from **your** past browsing history.
 
+Heatmap cells are ordered from the most ubiquitous to the least ubiquitous, from left to right then top to bottom. The most ubiquitous 3rd party used by the current page is the top left cell.
+
 Greyed heatmap cells correspond to 3rd parties which were blocked, i.e. something in your browser (likely an extension) prevented the connection to the remote server. Not connecting to 3rd parties which are useless to **you** is a good thing.
 
 ![](https://cloud.githubusercontent.com/assets/585534/23466172/58e7cdc0-fe68-11e6-911a-6ec1f53463c8.png)
