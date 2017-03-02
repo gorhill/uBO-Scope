@@ -31,7 +31,7 @@ I have found two glitches when the extension is used with Firefox:
 ## Installation
 
 - Manual installation from [Releases page](https://github.com/gorhill/uBO-Scope/releases)
-- Chrome store: <https://chrome.google.com/webstore/detail/bbdpgcaljkaaigfcomhidmneffjjjfgp/> (currently "pending review")
+- Chrome store: <https://chrome.google.com/webstore/detail/bbdpgcaljkaaigfcomhidmneffjjjfgp/>
 - Mozilla's AMO: I am trying to decide whether I should publish the extension now or wait for uBlock Origin to be WebExtensions-based in AMO.
 
 ## How it works
