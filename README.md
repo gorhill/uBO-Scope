@@ -103,7 +103,7 @@ Notice that I used and emphasized the word **minimally** above. This is because 
 
 ***
 
-For convenience, you can have the heatmap render as a list, where you can see the domain name of each 3rd-party. The score "x / y" aside each entry means: "x" = the actual ubiquitousness in percent, "y" the theoretical (averted) ubiquitousness in percent.
+For convenience, you can have the heatmap render as a list, where you can see the base domain name of each 3rd-party. The score "x / y" aside each entry means: "x" = the actual ubiquitousness in percent, "y" the theoretical (averted) ubiquitousness in percent.
 
 ![](https://cloud.githubusercontent.com/assets/585534/23466180/5ec0470e-fe68-11e6-80dd-3abb29545dd3.png)
 
