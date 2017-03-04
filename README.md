@@ -18,6 +18,8 @@ A network request to a remote server which has a different base domain name than
 
 A 3rd-party exposure score is derived not only from the number of distinct third parties on a web page, but also from the ubiquitousness of each of these distinct third parties.
 
+The ubiquitousness of a specific 3rd party is measured according to how frequently this 3rd party is used on web pages you visit. This means the ubiquitousness of a 3rd party will be representative of your browsing history and whether the 3rd party was blocked or not on the pages you visited. 
+
 ## Status
 
 Early development version. **DO NOT REQUEST FEATURES.**
