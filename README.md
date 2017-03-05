@@ -109,6 +109,8 @@ For convenience, you can have the heatmap render as a list, where you can see th
 
 ![](https://cloud.githubusercontent.com/assets/585534/23466180/5ec0470e-fe68-11e6-80dd-3abb29545dd3.png)
 
+If you look closely, you will find out that the actual 3rd-party exposure score for the page is the sum of all the ubiquitouness scores of all 3rd parties for which there was a connection on the page. The theoretical (averted) 3rd-party exposure score is the sum of all the ubiquitousness scores of all 3rd parties seen (blocked or not) for the page.
+
 There is also a filter button to filter out all the 3rd parties for which there was no network connection:
 
 ![](https://cloud.githubusercontent.com/assets/585534/23466185/6166a048-fe68-11e6-9407-cb3004573dd6.png)
