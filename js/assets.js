@@ -634,6 +634,20 @@ api.put = function(assetKey, content, callback) {
 
 /******************************************************************************/
 
+api.getAssetCacheKeys = function(callback) {
+    getAssetCacheRegistry(() => {
+        var out = new Map(),
+            cacheDict = assetCacheRegistry;
+        for ( var assetKey in cacheDict ) {
+            if ( cacheDict.hasOwnProperty(assetKey) === false ) { continue; }
+            out.set(assetKey, 'cache/' + assetKey);
+        }
+        callback(out);
+    });
+};
+
+/******************************************************************************/
+
 api.metadata = function(callback) {
     var assetRegistryReady = false,
         cacheRegistryReady = false;

@@ -29,6 +29,9 @@
 // http://stackoverflow.com/a/26426761
 
 uBOScope.getDoY = function(date) {
+    if ( date === undefined ) {
+        date = new Date();
+    }
     const year = date.getFullYear(),
         month = date.getMonth(),
         counts = this.isLeapYear(year) ?
@@ -131,6 +134,7 @@ uBOScope.idFromDomain = function(domain) {
     } while ( this.privexData.domainToIdMap.has(id) );
     this.privexData.domainToIdMap.set(domain, id);
     this.privexData.idToDomainMap.set(id, domain);
+    this.mustSave(this.DIRTY_DOMAIN_TO_ID_MAP);
     return id;
 };
 
@@ -142,7 +146,7 @@ uBOScope.connectionIdFromIds = function(leftHandId, rightHandId) {
    return leftHandId * this.lefthandOffset + rightHandId;
 };
 
-uBOScope.connectionIdFromDomains = function(domain1st, domain3rd) {
+uBOScope.connectionIdFromDomains = function(domain3rd, domain1st) {
    return this.connectionIdFromIds(
         this.idFromDomain(domain3rd),
         this.idFromDomain(domain1st)
@@ -206,40 +210,6 @@ uBOScope.authorityInfoFromDomainSet = function(domains) {
     return domainToAuthorityInfoMap;
 };
 
-/*******************************************************************************
-
-    Instead of losing forver the data for daily entry already in use, we move
-    the data from a daybased entry about to be overwritten into the month-based
-    collections. This the user will still have access to its data, though on a
-    less granular basis -- month-based instead of day-based.
-
-**/
-
-uBOScope.mergeDailyEntryIntoMonthlyEntry = function(doy) {
-    let dayEntry = this.privexData.daily.get(doy);
-    if ( dayEntry === undefined ) { return; }
-    let month = this.monthFromDoY(dayEntry.year, doy),
-        monthId = dayEntry.year * 1000 + month,
-        monthEntry = this.privexData.monthly.get(monthId);
-    if ( monthEntry === undefined ) {
-        monthEntry = {
-            all1st: new Set(),
-            allBlocked3rd: new Set(),
-            allConnected3rd: new Set(),
-        };
-        this.privexData.monthly.set(monthId, monthEntry);
-    }
-    for ( let id of dayEntry.all1st ) {
-        monthEntry.all1st.add(id);
-    }
-    for ( let id of dayEntry.allBlocked3rd ) {
-        monthEntry.allBlocked3rd.add(id);
-    }
-    for ( let id of dayEntry.allConnected3rd ) {
-        monthEntry.allConnected3rd.add(id);
-    }
-};
-
 /******************************************************************************/
 
 // All network requests are processed here.
@@ -249,10 +219,12 @@ uBOScope.processRequest = function(details, blocked) {
     if ( tabDetails === undefined ) { return; }
     const tabEntry = this.lookupTabEntry(tabDetails, details.timeStamp);
     if ( tabEntry === undefined ) { return; }
+
     const domain1st = tabEntry.domain,
         domain1stId = this.idFromDomain(domain1st),
         domain3rd = this.domainFromURI(details.url),
         is3rd = domain3rd !== domain1st;
+
     // Tab-based data.
     if ( is3rd ) {
         tabEntry.all3rd.add(domain3rd);
@@ -263,31 +235,65 @@ uBOScope.processRequest = function(details, blocked) {
             }
         }
     }
-    // Day-based data.
-    const now = new Date(details.timeStamp),
-        year = now.getFullYear();
-    let dirty = this.privexData.dirty,
-        connectionId = this.connectionIdFromDomains(domain1st, domain3rd),
-        doy = this.getDoY(now),
-        dayEntry = this.privexData.daily.get(doy);
-    if ( dayEntry === undefined ) {
-        dayEntry = {
-            year: year,
+
+    // Time-based data
+    const dateNow = new Date(),
+        yearNow = dateNow.getFullYear(),
+        connectionId = this.connectionIdFromDomains(domain3rd, domain1st);
+
+    // Month-based data.
+    const monthNow = dateNow.getMonth(),
+        monthIdNow = yearNow * 1000 + monthNow;
+    let monthEntry = this.privexData.monthly.get(monthIdNow);
+    if ( monthEntry === undefined ) {
+        monthEntry = {
             all1st: new Set(),
             allBlocked3rd: new Set(),
             allConnected3rd: new Set()
         };
-        this.privexData.daily.set(doy, dayEntry);
-    } else if ( dayEntry.year !== year ) {
-        this.moveDailyEntryIntoMonthlyEntry(doy);
-        dayEntry.year = year;
+        this.privexData.monthly.set(monthIdNow, monthEntry);
+    }
+    if ( monthEntry.all1st.has(domain1stId) === false ) {
+        monthEntry.all1st.add(domain1stId);
+        this.mustSave(this.DIRTY_MONTHLY_MAP);
+    }
+    if ( is3rd ) {
+        if ( blocked ) {
+            if (
+                monthEntry.allConnected3rd.has(connectionId) === false &&
+                monthEntry.allBlocked3rd.has(connectionId) === false
+                
+            ) {
+                monthEntry.allBlocked3rd.add(connectionId);
+                this.mustSave(this.DIRTY_MONTHLY_MAP);
+            }
+        } else if ( monthEntry.allConnected3rd.has(connectionId) === false ) {
+            monthEntry.allBlocked3rd.delete(connectionId);
+            monthEntry.allConnected3rd.add(connectionId);
+            this.mustSave(this.DIRTY_MONTHLY_MAP);
+        }
+    }
+
+    // Day-based data.
+    const doyNow = this.getDoY(dateNow);
+    let dayEntry = this.privexData.daily.get(doyNow);
+    if ( dayEntry === undefined ) {
+        dayEntry = {
+            year: yearNow,
+            all1st: new Set(),
+            allBlocked3rd: new Set(),
+            allConnected3rd: new Set()
+        };
+        this.privexData.daily.set(doyNow, dayEntry);
+    } else if ( dayEntry.year !== yearNow ) {
+        dayEntry.year = yearNow;
         dayEntry.all1st.clear();
         dayEntry.allBlocked3rd.clear();
         dayEntry.allConnected3rd.clear();
     }
     if ( dayEntry.all1st.has(domain1stId) === false ) {
         dayEntry.all1st.add(domain1stId);
-        dirty = true;
+        this.mustSave(this.DIRTY_DAILY_MAP);
     }
     if ( is3rd ) {
         if ( blocked ) {
@@ -297,274 +303,406 @@ uBOScope.processRequest = function(details, blocked) {
                 
             ) {
                 dayEntry.allBlocked3rd.add(connectionId);
-                dirty = true;
+                this.mustSave(this.DIRTY_DAILY_MAP);
             }
-        } else {
-            if ( dayEntry.allConnected3rd.has(connectionId) === false ) {
-                dayEntry.allBlocked3rd.delete(connectionId);
-                dayEntry.allConnected3rd.add(connectionId);
-                dirty = true;
-            }
+        } else if ( dayEntry.allConnected3rd.has(connectionId) === false ) {
+            dayEntry.allBlocked3rd.delete(connectionId);
+            dayEntry.allConnected3rd.add(connectionId);
+            this.mustSave(this.DIRTY_DAILY_MAP);
         }
     }
-    this.privexData.dirty = dirty;
 };
 
-/******************************************************************************/
+/*******************************************************************************
 
-uBOScope.getCachedExposureData = function(doyNow, since) {
-    const now = new Date(),
-        currentYear = now.getFullYear();
-    let cacheHash = currentYear * 1000000 + doyNow * 1000 + since;
-    if ( cacheHash === this.cachedExposureData.hash ) {
-        return this.cachedExposureData;
-    }
-    this.cachedExposureData.hash = cacheHash;
-    const previousYear = currentYear - 1,
-        doyMax = this.isLeapYear(previousYear) ? 365 : 364,
-        all1stSet = new Set(),
-        allConnected3rdToCountMap = new Map(),
-        all3rdToCountMap = new Map();
-    // Crunch for all days before current day.
-    let actualSince;
-    for ( let i = doyNow - since + 1; i < doyNow; i++ ) {
-        let doy = i < 0 ? doyMax + i : i,
-            entry = this.privexData.daily.get(doy);
-        if ( entry === undefined ) { continue; }
-        if ( doy <= doyNow ) {
-            if ( entry.year !== currentYear ) {
+    Caches of number-crunched data from immutable data sources. The data for
+    all the days before today is immutable -- it won't ever change. Hence
+    whatever can be number-crunched in advance will be cached here.
+
+**/
+
+uBOScope.getCachedExposureData = (function() {
+    let cachedData = {
+        hash: undefined,
+        actualSince: undefined,
+        all1stSet: undefined,
+        allConnected3rdToCountMap: undefined,
+        all3rdToCountMap: undefined,
+    };
+
+    let numberCrunch = function(details, bin) {
+        let { doyNow, since, currentYear, previousYear, doyMax, callback } = details,
+            actualSince,
+            all1stSet = new Set(),
+            allConnected3rdToCountMap = new Map(),
+            all3rdToCountMap = new Map();
+        for ( let i = doyNow - since + 1; i < doyNow; i++ ) {
+            let doy = i < 0 ? doyMax + i : i,
+                entry = this.privexData.daily.get(doy) ||
+                        bin['daily-' + doy];
+            if ( entry === undefined ) { continue; }
+            if ( doy <= doyNow ) {
+                if ( entry.year !== currentYear ) {
+                    continue;
+                }
+            } else if ( entry.year !== previousYear ) {
                 continue;
             }
-        } else if ( entry.year !== previousYear ) {
-            continue;
+            if ( actualSince === undefined ) {
+                actualSince = doyNow - i + 1;
+            }
+            for ( let id of entry.all1st ) {
+                all1stSet.add(id);
+            }
+            for ( let id of entry.allConnected3rd ) {
+                let leftHandId = this.leftHandIdFromConnectionId(id);
+                allConnected3rdToCountMap.set(
+                    leftHandId,
+                    (allConnected3rdToCountMap.get(leftHandId) || 0) + 1
+                );
+                all3rdToCountMap.set(
+                    leftHandId,
+                    (all3rdToCountMap.get(leftHandId) || 0) + 1
+                );
+            }
+            for ( let id of entry.allBlocked3rd ) {
+                let leftHandId = this.leftHandIdFromConnectionId(id);
+                all3rdToCountMap.set(
+                    leftHandId,
+                    (all3rdToCountMap.get(leftHandId) || 0) + 1
+                );
+            }
         }
-        if ( actualSince === undefined ) {
-            actualSince = doyNow - i + 1;
-        }
-        for ( let id of entry.all1st ) {
-            all1stSet.add(id);
-        }
-        for ( let id of entry.allConnected3rd ) {
-            let leftHandId = this.leftHandIdFromConnectionId(id);
-            allConnected3rdToCountMap.set(
-                leftHandId,
-                (allConnected3rdToCountMap.get(leftHandId) || 0) + 1
-            );
-            all3rdToCountMap.set(
-                leftHandId,
-                (all3rdToCountMap.get(leftHandId) || 0) + 1
-            );
-        }
-        for ( let id of entry.allBlocked3rd ) {
-            let leftHandId = this.leftHandIdFromConnectionId(id);
-            all3rdToCountMap.set(
-                leftHandId,
-                (all3rdToCountMap.get(leftHandId) || 0) + 1
-            );
-        }
-    }
-    this.cachedExposureData.actualSince = actualSince || 1;
-    this.cachedExposureData.all1stSet = all1stSet;
-    this.cachedExposureData.allConnected3rdToCountMap = allConnected3rdToCountMap;
-    this.cachedExposureData.all3rdToCountMap = all3rdToCountMap;
-    return this.cachedExposureData;
-};
-
-/******************************************************************************/
-
-uBOScope.exportHeatmapData = function(tabId, since) {
-    const tabDetails = this.tabIdToDetailsMap.get(tabId);
-    if ( tabDetails === undefined ) { return; }
-    const tabEntry = this.lookupTabEntry(tabDetails);
-    if ( tabEntry === undefined ) { return; }
-    const now = new Date(),
-        doyNow = this.getDoY(now);
-    if ( since === undefined ) {
-        since = this.settings.daysBefore;
-    }
-    const cachedExposureData = this.getCachedExposureData(doyNow, since),
-        all1stSet = new Set(cachedExposureData.all1stSet),
-        allConnected3rdToCountMap = new Map(cachedExposureData.allConnected3rdToCountMap),
-        all3rdToCountMap = new Map(cachedExposureData.all3rdToCountMap),
-        entry = this.privexData.daily.get(doyNow);
-    if ( entry ) {
-        for ( let id of entry.all1st ) {
-            all1stSet.add(id);
-        }
-        for ( let id of entry.allConnected3rd ) {
-            let leftHandId = this.leftHandIdFromConnectionId(id);
-            allConnected3rdToCountMap.set(
-                leftHandId,
-                (allConnected3rdToCountMap.get(leftHandId) || 0) + 1
-            );
-            all3rdToCountMap.set(
-                leftHandId,
-                (all3rdToCountMap.get(leftHandId) || 0) + 1
-            );
-        }
-        for ( let id of entry.allBlocked3rd ) {
-            let leftHandId = this.leftHandIdFromConnectionId(id);
-            all3rdToCountMap.set(
-                leftHandId,
-                (all3rdToCountMap.get(leftHandId) || 0) + 1
-            );
-        }
-    }
-    return {
-        all1pCount: all1stSet.size,
-        domain1st: tabEntry.domain,
-        since: cachedExposureData.actualSince || since,
-        heatmapHue: this.settings.heatmapHue,
-        domainToAuthorityInfo: Array.from(this.authorityInfoFromDomainSet(tabEntry.all3rd)),
-        connected: {
-            tab3parties: Array.from(tabEntry.allConnected3rd),
-            all3pCounts: this.expandArrayOfDomainIdTuples(Array.from(allConnected3rdToCountMap), 0),
-        },
-        all: {
-            tab3parties: Array.from(tabEntry.all3rd),
-            all3pCounts: this.expandArrayOfDomainIdTuples(Array.from(all3rdToCountMap), 0),
-        },
+        cachedData.hash = currentYear * 1000000 + doyNow * 1000 + since;
+        cachedData.actualSince = actualSince || 1;
+        cachedData.all1stSet = all1stSet;
+        cachedData.allConnected3rdToCountMap = allConnected3rdToCountMap;
+        cachedData.all3rdToCountMap = all3rdToCountMap;
+        callback(cachedData);
     };
-};
+
+    return function(doyNow, since, callback) {
+        const now = new Date(),
+            currentYear = now.getFullYear();
+        let cacheHash = currentYear * 1000000 + doyNow * 1000 + since;
+        if ( cacheHash === cachedData.hash ) {
+            return callback(cachedData);
+        }
+        const previousYear = currentYear - 1,
+            doyMax = this.isLeapYear(previousYear) ? 365 : 364;
+        // Load all daily data not yet in memory.
+        let storageKeys = [];
+        for ( let i = doyNow - since + 1; i < doyNow; i++ ) {
+            storageKeys.push('daily-' + (i < 0 ? doyMax + i : i));
+        }
+        if ( storageKeys.length === 0 ) {
+            return callback();
+        }
+        self.browser.storage.local.get(
+            storageKeys,
+            numberCrunch.bind(this, { doyNow, since, currentYear, previousYear, doyMax, callback })
+        );
+    };
+})();
 
 /******************************************************************************/
 
-uBOScope.queryExposureScore = function(tabId, since) {
-    const tabDetails = this.tabIdToDetailsMap.get(tabId);
-    if ( tabDetails === undefined ) { return; }
-    if ( tabDetails.actualExposureScore !== undefined ) {
-        return tabDetails.actualExposureScore;
+uBOScope.exportHeatmapData = function(tabId, since, callback) {
+    if ( typeof since === 'function' ) {
+        callback = since;
+        since = undefined;
     }
+
+    const tabDetails = this.tabIdToDetailsMap.get(tabId);
+    if ( tabDetails === undefined ) { return callback(); }
     const tabEntry = this.lookupTabEntry(tabDetails);
-    if ( tabEntry === undefined ) { return; }
+    if ( tabEntry === undefined ) { return callback(); }
+
     const now = new Date(),
         doyNow = this.getDoY(now);
     if ( since === undefined ) {
         since = this.settings.daysBefore;
     }
-    let cachedExposureData = this.getCachedExposureData(doyNow, since),
-        all1stSet = new Set(cachedExposureData.all1stSet),
-        allConnected3rdToCountMap = new Map(cachedExposureData.allConnected3rdToCountMap),
-        entry = this.privexData.daily.get(doyNow);
-    if ( entry ) {
-        for ( let id of entry.all1st ) {
-            all1stSet.add(id);
+
+    this.getCachedExposureData(doyNow, since, cachedData => {
+        let all1stSet = new Set(cachedData && cachedData.all1stSet),
+            allConnected3rdToCountMap = new Map(cachedData && cachedData.allConnected3rdToCountMap),
+            all3rdToCountMap = new Map(cachedData && cachedData.all3rdToCountMap);
+        let entry = this.privexData.daily.get(doyNow);
+        if ( entry ) {
+            for ( let id of entry.all1st ) {
+                all1stSet.add(id);
+            }
+            for ( let id of entry.allConnected3rd ) {
+                let leftHandId = this.leftHandIdFromConnectionId(id);
+                allConnected3rdToCountMap.set(
+                    leftHandId,
+                    (allConnected3rdToCountMap.get(leftHandId) || 0) + 1
+                );
+                all3rdToCountMap.set(
+                    leftHandId,
+                    (all3rdToCountMap.get(leftHandId) || 0) + 1
+                );
+            }
+            for ( let id of entry.allBlocked3rd ) {
+                let leftHandId = this.leftHandIdFromConnectionId(id);
+                all3rdToCountMap.set(
+                    leftHandId,
+                    (all3rdToCountMap.get(leftHandId) || 0) + 1
+                );
+            }
         }
-        for ( let id of entry.allConnected3rd ) {
-            let leftHandId = this.leftHandIdFromConnectionId(id);
-            allConnected3rdToCountMap.set(
-                leftHandId,
-                (allConnected3rdToCountMap.get(leftHandId) || 0) + 1
-            );
-        }
-    }
-    let exposureScore = 0,
-        tabConnected3rd = tabEntry.allConnected3rd;
-    for ( let domain of tabConnected3rd ) {
-        exposureScore += Math.max(
-            allConnected3rdToCountMap.get(this.idFromDomain(domain)) / all1stSet.size,
-            0.01
-        );
-    }
-    exposureScore *= 100;
-    tabDetails.actualExposureScore = exposureScore;
-    return exposureScore;
+        callback({
+            all1pCount: all1stSet.size,
+            domain1st: tabEntry.domain,
+            since: cachedData && cachedData.actualSince || since,
+            heatmapHue: this.settings.heatmapHue,
+            domainToAuthorityInfo: Array.from(this.authorityInfoFromDomainSet(tabEntry.all3rd)),
+            connected: {
+                tab3parties: Array.from(tabEntry.allConnected3rd),
+                all3pCounts: this.expandArrayOfDomainIdTuples(Array.from(allConnected3rdToCountMap), 0),
+            },
+            all: {
+                tab3parties: Array.from(tabEntry.all3rd),
+                all3pCounts: this.expandArrayOfDomainIdTuples(Array.from(all3rdToCountMap), 0),
+            },
+        });
+    });
 };
 
 /******************************************************************************/
 
-uBOScope.exportDataFromPrivexData = function() {
-    let privexData = this.privexData,
-        manifest = self.browser.runtime.getManifest();
+uBOScope.queryExposureScore = function(tabId, since, callback) {
+    const tabDetails = this.tabIdToDetailsMap.get(tabId);
+    if ( tabDetails === undefined ) { return callback(); }
+    if ( tabDetails.actualExposureScore !== undefined ) {
+        return callback(tabDetails.actualExposureScore);
+    }
+    const tabEntry = this.lookupTabEntry(tabDetails);
+    if ( tabEntry === undefined ) { return callback(); }
+
+    const now = new Date(),
+        doyNow = this.getDoY(now);
+    if ( since === undefined ) {
+        since = this.settings.daysBefore;
+    }
+
+    this.getCachedExposureData(doyNow, since, cachedData => {
+        let all1stSet = new Set(cachedData && cachedData.all1stSet),
+            allConnected3rdToCountMap = new Map(cachedData && cachedData.allConnected3rdToCountMap);
+        let entry = this.privexData.daily.get(doyNow);
+        if ( entry ) {
+            for ( let id of entry.all1st ) {
+                all1stSet.add(id);
+            }
+            for ( let id of entry.allConnected3rd ) {
+                let leftHandId = this.leftHandIdFromConnectionId(id);
+                allConnected3rdToCountMap.set(
+                    leftHandId,
+                    (allConnected3rdToCountMap.get(leftHandId) || 0) + 1
+                );
+            }
+        }
+        let exposureScore = 0,
+            tabConnected3rd = tabEntry.allConnected3rd;
+        for ( let domain of tabConnected3rd ) {
+            exposureScore += Math.max(
+                allConnected3rdToCountMap.get(this.idFromDomain(domain)) / all1stSet.size,
+                0.01
+            );
+        }
+        exposureScore *= 100;
+        tabDetails.actualExposureScore = exposureScore;
+        callback(exposureScore);
+    });
+};
+
+/******************************************************************************/
+
+uBOScope.exportDataFromPrivexData = function(callback) {
+    // Be sure all changes are committed to the storage
+    this.savePrivexData();
+
+    // Read all data to be exported
+    let manifest = self.browser.runtime.getManifest();
     let exportData = {
         source: manifest.name,
         version: manifest.version,
-        domainIdGenerator: privexData.domainIdGenerator,
-        domainToIdMap: Array.from(privexData.domainToIdMap),
-        monthly: [],
-        daily: [],
     };
-    let monthly = exportData.monthly;
-    for ( let [monthId, entry] of privexData.monthly ) {
-        monthly.push([monthId, {
-            all1st: Array.from(entry.all1st),
-            allBlocked3rd: Array.from(entry.allBlocked3rd),
-            allConnected3rd: Array.from(entry.allConnected3rd),
-        }]);
+    let storageKeys = [];
+
+    // monthly data
+    let { monthIdMin, monthIdMax } = this.privexData.monthlyMetadata,
+        monthId = monthIdMin;
+    while ( monthId <= monthIdMax ) {
+        storageKeys.push('monthly-' + monthId);
+        monthId += 1;
+        if ( monthId % 1000 > 11 ) {
+            monthId = Math.round(monthId / 1000) + 1000;
+        }
     }
-    let daily = exportData.daily;
-    for ( let [doy, entry] of privexData.daily ) {
-        daily.push([doy, {
-            year: entry.year,
-            all1st: Array.from(entry.all1st),
-            allBlocked3rd: Array.from(entry.allBlocked3rd),
-            allConnected3rd: Array.from(entry.allConnected3rd),
-        }]);
+
+    // daily data
+    for ( let doy = 0; doy < 366; doy++ ) {
+        storageKeys.push('daily-' + doy);
     }
-    return exportData;
+    self.browser.storage.local.get(storageKeys, bin => {
+        for ( let key of Object.keys(bin).sort() ) {
+            let entry = bin[key];
+            this.expandArrayOfDomainIds(entry.all1st).sort();
+            this.expandArrayOfDomainConnectionIds(entry.allBlocked3rd).sort();
+            this.expandArrayOfDomainConnectionIds(entry.allConnected3rd).sort();
+            exportData[key] = entry;
+        }
+        callback(exportData);
+    });
 };
 
-/******************************************************************************/
+/*******************************************************************************
 
-uBOScope.privexDataFromExportData = function(exportData) {
-    exportData.domainToIdMap = new Map(exportData.domainToIdMap);
-    let idToDomainMap = new Map();
-    for ( let [domain, id] of exportData.domainToIdMap ) {
-        idToDomainMap.set(id, domain);
-    }
-    exportData.idToDomainMap = idToDomainMap;
-    let monthly = new Map();
-    for ( let [monthId, entry] of exportData.monthly ) {
-        monthly.set(monthId, {
-            all1st: new Set(entry.all1st),
-            allBlocked3rd: new Set(entry.allBlocked3rd),
-            allConnected3rd: new Set(entry.allConnected3rd),
-        });
-    }
-    exportData.monthly = monthly;
-    let daily = new Map();
-    for ( let [doy, entry] of exportData.daily ) {
-        daily.set(doy, {
-            year: entry.year,
-            all1st: new Set(entry.all1st),
-            allBlocked3rd: new Set(entry.allBlocked3rd),
-            allConnected3rd: new Set(entry.allConnected3rd),
-        });
-    }
-    exportData.daily = daily;
-    return exportData;
-};
+    https://github.com/gorhill/uBO-Scope/issues/2
+    0.1.1 and below:
+    - 'privexData': all data
+    0.1.5 and above:
+    - 'domainToIdMap': data to transpose base domain name into unique integer id.
+    - 'daily-[doy]: day-of-year daily-based data.
+    - 'monthly-[monthId]: monthly-based data.
+    - 'monthly-metadata': metadata for the monthly data.
 
-/******************************************************************************/
+    Storing things this way allows for a more efficient piecemeal approach
+    when there is a need to save 3rd-party exposure data.
 
-uBOScope.expandExportData = function(exportData) {
-    let monthly = exportData.monthly;
-    for ( let i = 0, n = monthly.length; i < n; i++ ) {
-        let tuple = monthly[i];
-        this.expandArrayOfDomainIds(tuple[1].all1st).sort();
-        this.expandArrayOfDomainConnectionIds(tuple[1].allBlocked3rd).sort();
-        this.expandArrayOfDomainConnectionIds(tuple[1].allConnected3rd).sort();
-    }
-    let daily = exportData.daily;
-    for ( let i = 0, n = daily.length; i < n; i++ ) {
-        let tuple = daily[i];
-        this.expandArrayOfDomainIds(tuple[1].all1st).sort();
-        this.expandArrayOfDomainConnectionIds(tuple[1].allBlocked3rd).sort();
-        this.expandArrayOfDomainConnectionIds(tuple[1].allConnected3rd).sort();
-    }
-    // When we expand the data, these fields are no longer needed.
-    exportData.domainIdGenerator = undefined;
-    exportData.domainToIdMap = undefined;
-    return exportData;
-};
-
-/******************************************************************************/
+**/
 
 uBOScope.savePrivexData = function(force) {
-    if ( this.privexData.dirty === false && !force ) { return; }
-    this.privexData.dirty = false;
-    self.browser.storage.local.set({
-        privexData: this.exportDataFromPrivexData()
+    if ( this.mustSaveBits === 0 && !force ) { return; }
+    let bin = {},
+        dateNow = new Date(),
+        yearNow = dateNow.getFullYear(),
+        monthNow = dateNow.getMonth(),
+        monthIdNow = yearNow * 1000 + monthNow,
+        doyNow = this.getDoY(dateNow);
+
+    if ( this.mustSaveBits & this.DIRTY_DOMAIN_TO_ID_MAP ) {
+        bin['domainToIdMap'] = Array.from(this.privexData.domainToIdMap);
+    }
+
+    if ( this.mustSaveBits & this.DIRTY_MONTHLY_MAP ) {
+        let { monthIdMin, monthIdMax } = this.privexData.monthlyMetadata;
+        for ( let [ monthId, entry ] of this.privexData.monthly ) {
+            bin['monthly-' + monthId] = {
+                all1st: Array.from(entry.all1st),
+                allBlocked3rd: Array.from(entry.allBlocked3rd),
+                allConnected3rd: Array.from(entry.allConnected3rd),
+            };
+            if ( monthIdMin > monthId ) { monthIdMin = monthId; }
+            if ( monthIdMax < monthId ) { monthIdMax = monthId; }
+            if ( monthId !== monthIdNow ) {
+                this.privexData.monthly.delete(monthId);
+            }
+        }
+        bin['monthly-metadata'] = { monthIdMin, monthIdMax };
+    }
+
+    if ( this.mustSaveBits & this.DIRTY_DAILY_MAP ) {
+        for ( let [ doy, entry ] of this.privexData.daily ) {
+            bin['daily-' + doy] = {
+                year: entry.year,
+                all1st: Array.from(entry.all1st),
+                allBlocked3rd: Array.from(entry.allBlocked3rd),
+                allConnected3rd: Array.from(entry.allConnected3rd),
+            };
+            if ( doy !== doyNow ) {
+                this.privexData.daily.delete(doy);
+            }
+        }
+    }
+
+    this.mustSaveBits = 0;
+    self.browser.storage.local.set(bin);
+};
+
+/******************************************************************************/
+
+// This ugly code below can be scraped once everybody moved to the
+// new storage layout.
+
+uBOScope.migrateStorage = function(callback) { 
+
+    let createMonthlyData = function(bin) {
+        if ( bin && bin['monthly-metadata'] ) {
+            callback();
+            return;
+        }
+        let storageKeys = [];
+        for ( let doy = 0; doy < 366; doy++ ) {
+            storageKeys.push('daily-' + doy);
+        }
+        self.browser.storage.local.get(storageKeys, binin => {
+            if ( !binin ) {
+                callback();
+                return;
+            }
+            let binout = {},
+                monthIdMin = Number.MAX_SAFE_INTEGER,
+                monthIdMax = Number.MIN_SAFE_INTEGER;
+            for ( let key in binin ) {
+                let match = /^daily-(\d+)/.exec(key);
+                if ( match === null ) { continue; }
+                let doy = parseInt(match[1], 10),
+                    doyEntry = binin[key];
+                let month = this.monthFromDoY(doyEntry.year, doy),
+                    monthId = doyEntry.year * 1000 + month,
+                    monthEntry = binout['monthly-' + monthId];
+                if ( monthEntry === undefined ) {
+                    monthEntry = {
+                        all1st: [],
+                        allBlocked3rd: [],
+                        allConnected3rd: [],
+                    };
+                    binout['monthly-' + monthId] = monthEntry;
+                }
+                monthEntry.all1st = Array.from(new Set(monthEntry.all1st.concat(doyEntry.all1st)));
+                monthEntry.allBlocked3rd = Array.from(new Set(monthEntry.allBlocked3rd.concat(doyEntry.allBlocked3rd)));
+                monthEntry.allConnected3rd = Array.from(new Set(monthEntry.allConnected3rd.concat(doyEntry.allConnected3rd)));
+                if ( monthIdMin > monthId ) {
+                    monthIdMin = monthId;
+                }
+                if ( monthIdMax < monthId ) {
+                    monthIdMax = monthId;
+                }
+            }
+            binout['monthly-metadata'] = this.privexData.monthlyMetadata =  { monthIdMin, monthIdMax };
+            self.browser.storage.local.set(binout, () => {
+                callback();
+            });
+        });
+    };
+
+    self.browser.storage.local.get([ 'privexData' ], binin => {
+        if ( self.browser.runtime.lastError || !binin || !binin.privexData ) {
+            callback();
+            return;
+        }
+
+        let binout = {};
+
+        if ( binin.privexData.domainToIdMap ) {
+            binout.domainToIdMap = binin.privexData.domainToIdMap;
+        }
+
+        if ( binin.privexData.daily ) {
+            for ( let [doy, entry] of binin.privexData.daily ) {
+                binout['daily-' + doy] = entry;
+            }
+        }
+
+        self.browser.storage.local.set(binout, () => {
+            self.browser.storage.local.remove('privexData');
+            self.browser.storage.local.get('monthly-metadata', bin => {
+                createMonthlyData.call(this, bin);
+            });
+        });
     });
 };
 
@@ -573,38 +711,92 @@ uBOScope.savePrivexData = function(force) {
 uBOScope.loadPrivexData = function(callback) {
     if ( typeof callback !== 'function' ) {
         callback = this.noopFunc;
-    }   
-    self.browser.storage.local.get('privexData', (bin) => {
-        if ( self.browser.runtime.lastError || !bin || !bin.privexData ) {
+    }
+
+    this.migrateStorage(() => {
+        let dateNow = new Date(),
+            yearNow = dateNow.getFullYear(),
+            monthNow = dateNow.getMonth(),
+            monthIdNow = yearNow * 1000 + monthNow,
+            monthIdStorageKey = 'monthly-' + monthIdNow,
+            doyNow = this.getDoY(dateNow),
+            doyStorageKey = 'daily-' + doyNow;
+        let storageKeys = [
+            'domainToIdMap',
+            doyStorageKey,
+            monthIdStorageKey,
+            'monthly-metadata',
+        ];
+        self.browser.storage.local.get(storageKeys, bin => {
+            if ( self.browser.runtime.lastError || !bin ) {
+                callback();
+                return;
+            }
+
+            this.mustSaveBits = 0;
+
+            if ( bin.domainToIdMap ) {
+                this.privexData.domainToIdMap = new Map(bin.domainToIdMap);
+                this.privexData.domainIdGenerator = this.privexData.domainToIdMap.size;
+                let idToDomainMap = new Map();
+                for ( let [domain, id] of this.privexData.domainToIdMap ) {
+                    idToDomainMap.set(id, domain);
+                }
+                this.privexData.idToDomainMap = idToDomainMap;
+            }
+
+            let doyEntry = bin[doyStorageKey];
+            if ( doyEntry ) {
+                this.privexData.daily.set(doyNow, {
+                    year: doyEntry.year,
+                    all1st: new Set(doyEntry.all1st),
+                    allBlocked3rd: new Set(doyEntry.allBlocked3rd),
+                    allConnected3rd: new Set(doyEntry.allConnected3rd),
+                });
+            }
+
+            let monthEntry = bin[monthIdStorageKey];
+            if ( monthEntry ) {
+                this.privexData.monthly.set(monthIdNow, {
+                    all1st: new Set(monthEntry.all1st),
+                    allBlocked3rd: new Set(monthEntry.allBlocked3rd),
+                    allConnected3rd: new Set(monthEntry.allConnected3rd),
+                });
+            }
+
+            if ( bin['monthly-metadata'] ) {
+                this.privexData.monthlyMetadata = bin['monthly-metadata'];
+            }
+
             callback();
-            return;
-        }
-        var privexData = this.privexDataFromExportData(bin.privexData);
-        if ( this.privexData.domainIdGenerator < privexData.domainIdGenerator ) {
-            this.privexData.domainIdGenerator = privexData.domainIdGenerator;
-        }
-        this.privexData.domainToIdMap = privexData.domainToIdMap;
-        this.privexData.idToDomainMap = privexData.idToDomainMap;
-        this.privexData.monthly = privexData.monthly;
-        this.privexData.daily = privexData.daily;
-        this.privexData.dirty = false;
-        callback();
+        });
     });
 };
 
 /******************************************************************************/
 
 uBOScope.exportPrivexData = function() {
-    let exportData = this.expandExportData(this.exportDataFromPrivexData());
-    let a = document.createElement('a');
-    a.type = 'text/plain';
-    a.target = '_blank';
-    a.href = URL.createObjectURL(new Blob(
-        [ JSON.stringify(exportData, null, '\t') ],
-        { type: 'text/plain;charset=utf-8', endings: 'native' }
-    ));
-    a.setAttribute('download', 'my-uboscope-data.txt');
-    a.dispatchEvent(new MouseEvent('click'));
+    this.exportDataFromPrivexData(exportData => {
+        let a = document.createElement('a');
+        a.type = 'text/plain';
+        a.target = '_blank';
+        a.href = URL.createObjectURL(new Blob(
+            [ JSON.stringify(exportData, null, '\t') ],
+            { type: 'text/plain;charset=utf-8', endings: 'native' }
+        ));
+        a.setAttribute('download', 'my-uboscope-data.txt');
+        a.dispatchEvent(new MouseEvent('click'));
+    });
+};
+
+/******************************************************************************/
+
+uBOScope.mustSave = function(bits) {
+    this.mustSaveBits |= bits;
+    if ( this.mustSaveTimer === false ) {
+        this.mustSaveTimer = true;
+        self.browser.alarms.create('savePrivexData', { delayInMinutes: 1 });
+    }
 };
 
 /******************************************************************************/
@@ -625,7 +817,6 @@ uBOScope.loadSettings = function() {
             return;
         }
         this.settings = bin.settings;
-        this.cachedExposureData.hash = undefined;
     });
 };
 
@@ -812,34 +1003,39 @@ uBOScope.start = function() {
         ]
     });
 
-    let updateTabBadge = (function() {
-        const updateScore = function(tabId) {
-            let exposureScore,
-                tabDetails = this.tabIdToDetailsMap.get(tabId);
-            if ( tabDetails ) {
-                tabDetails.updateBadgeTimer = undefined;
-                exposureScore = this.queryExposureScore(tabId, this.settings.daysBefore);
-            }
-            self.browser.browserAction.setBadgeText({
-                tabId: tabId,
-                text: typeof exposureScore === 'number' ? Math.ceil(exposureScore).toFixed(0) : ''
+    let setBadgeText = function(tabId, score) {
+        self.browser.browserAction.setBadgeText({
+            tabId: tabId,
+            text: typeof score === 'number' ? Math.ceil(score).toFixed(0) : ''
+        });
+    };
+
+    const updateTabBadgeAsync = function(tabId) {
+        let tabDetails = this.tabIdToDetailsMap.get(tabId);
+        if ( tabDetails ) {
+            tabDetails.updateBadgeTimer = undefined;
+            this.queryExposureScore(tabId, this.settings.daysBefore, score => {
+                setBadgeText(tabId, score);
             });
-        };
-        return function(tabId) {
-            if ( tabId === -1 ) { return; }
-            const tabDetails = ubo.tabIdToDetailsMap.get(tabId);
-            if (
-                tabDetails !== undefined &&
-                tabDetails.actualExposureScore === undefined &&
-                tabDetails.updateBadgeTimer === undefined
-            ) {
-                tabDetails.updateBadgeTimer = setTimeout(
-                    updateScore.bind(ubo, tabId),
-                    751
-                );
-            }
-        };
-    })();
+        } else {
+            setBadgeText(tabId);
+        }
+    };
+
+    let updateTabBadge = function(tabId) {
+        if ( tabId === -1 ) { return; }
+        const tabDetails = ubo.tabIdToDetailsMap.get(tabId);
+        if (
+            tabDetails !== undefined &&
+            tabDetails.actualExposureScore === undefined &&
+            tabDetails.updateBadgeTimer === undefined
+        ) {
+            tabDetails.updateBadgeTimer = setTimeout(
+                updateTabBadgeAsync.bind(ubo, tabId),
+                751
+            );
+        }
+    };
 
     self.browser.tabs.onRemoved.addListener(function(tabId) {
         const tabDetails = ubo.tabIdToDetailsMap.get(tabId);
@@ -851,6 +1047,10 @@ uBOScope.start = function() {
         ubo.tabIdToDetailsMap.delete(tabId);
     });
 
+    // The assumptions are:
+    // - if onSendHeaders is called, then headers are really sent;
+    // - if headers are sent, then a connection to a remote server is being
+    //   made.
     self.browser.webRequest.onSendHeaders.addListener(
         function(details) {
             requestIds.set(details.requestId, details.timeStamp);
@@ -902,17 +1102,13 @@ uBOScope.start = function() {
     // will be an issue if ever Firefox aligns its behavior to that of
     // Chromium, as the latter contains a valid status code of 307. If this
     // ever happens, maybe using details.ip?
-    let reInternalURL = /^data:/;
-
     self.browser.webRequest.onBeforeRedirect.addListener(
         function(details) {
-            let noConnection = requestIds.has(details.requestId) === false ||
-                !details.statusCode;
-            if ( noConnection && reInternalURL.test(details.redirectUrl) ) {
+            if ( !details.ip && details.redirectUrl.startsWith('data:') ) {
                 requestIds.delete(details.requestId);
-                ubo.processRequest(details, true);
-                updateTabBadge(details.tabId);
             }
+            ubo.processRequest(details, requestIds.has(details.requestId) === false);
+            updateTabBadge(details.tabId);
         },
         { urls: [ '<all_urls>' ] }
     );
@@ -958,20 +1154,28 @@ uBOScope.start = function() {
             case 'getHeatmapData':
                 self.browser.tabs.query({ active: true }, function(tabs) {
                     if ( tabs && tabs.length !== 0 ) {
-                        response = ubo.exportHeatmapData(tabs[0].id);
+                        ubo.exportHeatmapData(tabs[0].id, callback);
+                    } else {
+                        callback();
                     }
-                    callback(response);
                 });
                 return true;
             case 'getStorageUsed':
-                self.browser.storage.local.getBytesInUse('privexData', function(used) {
-                    callback(used);
-                });
-                return true;
+                if ( self.browser.storage.local.getBytesInUse ) {
+                    // Exclude space taken by assets cache.
+                    ubo.assets.getAssetCacheKeys(keys => {
+                        self.browser.storage.local.getBytesInUse(Array.from(keys.values()), usedByCache => {
+                            self.browser.storage.local.getBytesInUse(null, used => {
+                                callback(used - usedByCache);
+                            });
+                        });
+                    });
+                    return true;
+                }
+                break;
             case 'setDaysBefore':
                 if ( typeof details.value === 'number' ) {
                     ubo.settings.daysBefore = details.value;
-                    ubo.cachedExposureData.hash = undefined;
                     ubo.saveSettings();
                 }
                 break;
@@ -988,13 +1192,13 @@ uBOScope.start = function() {
         }
     );
 
-    self.browser.alarms.create('savePrivexData', { periodInMinutes: 5 });
-
     self.browser.alarms.onAlarm.addListener(function(details) {
         if ( details.name === 'savePrivexData' ) {
+            ubo.mustSaveTimer = false;
             ubo.savePrivexData();
             return;
         }
+        console.error('unknown alarm:', details.name);
     });
 
     // This can be done lazily

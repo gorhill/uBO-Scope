@@ -153,7 +153,10 @@ var renderPanel = function(data) {
                 );
                 acell.setAttribute('data-theoretical-score', theoreticalScore);
                 tcell.setAttribute('data-theoretical-score', theoreticalScore);
-                theoriticalScoreTotal += theoreticalScore;
+                // TODO: still need to investigate why this can happen
+                if ( isNaN(theoreticalScore) === false ) {
+                    theoriticalScoreTotal += theoreticalScore;
+                }
                 value = Math.max(theoreticalScore, 5);
                 if ( reverseValue ) { value = 100 - value; }
                 tcell.children[0].style.backgroundColor = colorTemplate.replace(/\{-?l\}/, value.toFixed(0));

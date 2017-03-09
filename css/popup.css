@@ -61,7 +61,7 @@ body.nodata #topPane {
     font-size: 7rem;
 }
 #scores .scores .score.theoretical {
-    color: #aaa;
+    color: #ccc;
     font-size: 1.6rem;
 }
 body.theoretical #scores .scores .score.actual {

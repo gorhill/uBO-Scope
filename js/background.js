@@ -38,10 +38,13 @@ var uBOScope = { // jshint ignore:line
     lefthandOffset: Math.pow(2, 26),
     righthandMask: 0x3FFFFFF,
     privexData: {
-        dirty: false,
         domainIdGenerator: 1,
         domainToIdMap: new Map(),
         idToDomainMap: new Map(),
+        monthlyMetadata: {
+            monthIdMin: Number.MAX_SAFE_INTEGER,
+            monthIdMax: Number.MIN_SAFE_INTEGER,
+        },
         monthly: new Map(),
         daily: new Map(),
     },
@@ -51,6 +54,11 @@ var uBOScope = { // jshint ignore:line
         domainIdToCategoryId: new Map(),
         domainIdToAuthorityId: new Map(),
     },
+    mustSaveBits: 0,
+    mustSaveTimer: false,
+    DIRTY_DOMAIN_TO_ID_MAP: 1,
+    DIRTY_DAILY_MAP: 2,
+    DIRTY_MONTHLY_MAP: 4,
     pslAssetKey: 'public_suffix_list.dat',
     dtpAssetKey: 'disconnect-tracking-protection',
     reAuthorityFromURI: /^(?:[^:\/?#]+:)?(\/\/[^\/?#]+)/,
@@ -64,16 +72,6 @@ var uBOScope = { // jshint ignore:line
         heatmapHue: 0,
     },
     tabIdToDetailsMap: new Map(),
-    // Caches of number-crunched data from immutable data sources. The data for
-    // all the days before today is immutable -- it won't ever change. Hence
-    // whatever can be number-crunched in advance will be cached here.
-    cachedExposureData: {
-        hash: undefined,
-        actualSince: undefined,
-        all1stSet: undefined,
-        allConnected3rdToCountMap: undefined,
-        all3rdToCountMap: undefined,
-    }
 };
 
 /******************************************************************************/
