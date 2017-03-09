@@ -18,6 +18,8 @@ A network request to a remote server which has a different base domain name than
 
 A 3rd-party exposure score is derived not only from the number of distinct third parties on a web page, but also from the ubiquitousness of each of these distinct third parties.
 
+The ubiquitousness of a specific 3rd party is measured according to how frequently this 3rd party is used on web pages you visit. This means the ubiquitousness of a 3rd party will be representative of your browsing history and whether the 3rd party was blocked or not on the pages you visited. 
+
 ## Status
 
 Early development version. **DO NOT REQUEST FEATURES.**
@@ -106,6 +108,8 @@ Notice that I used and emphasized the word **minimally** above. This is because 
 For convenience, you can have the heatmap render as a list, where you can see the base domain name of each 3rd-party. The score "x / y" aside each entry means: "x" = the actual ubiquitousness in percent, "y" the theoretical (averted) ubiquitousness in percent.
 
 ![](https://cloud.githubusercontent.com/assets/585534/23466180/5ec0470e-fe68-11e6-80dd-3abb29545dd3.png)
+
+If you look closely, you will find out that the actual 3rd-party exposure score for the page is the sum of all the ubiquitouness scores of all 3rd parties for which there was a connection on the page. The theoretical (averted) 3rd-party exposure score is the sum of all the ubiquitousness scores of all 3rd parties seen (blocked or not) for the page.
 
 There is also a filter button to filter out all the 3rd parties for which there was no network connection:
 
