@@ -130,7 +130,7 @@ The other most ubiquitous 3rd party which was not blocked is `facebook.net`:
 
 ![](https://cloud.githubusercontent.com/assets/585534/23466202/685d4438-fe68-11e6-90f6-fbd12c83e420.png)
 
-Since the page is loading resources from two of Facebook servers, the safest assumption to make is that now Facebook knows that you visited this one The Guardian article. Since the actual ubiquitousness of `facebook.com` is measured as 24% (in our synthetic scenario), this means Facebook knows 24% of all distinct sites which were visited.
+Since the page is loading resources from two of Facebook servers, the safest assumption to make is that now Facebook knows that you visited this one The Guardian article. The actual ubiquitousness of `facebook.com` is measured as 24% (in our synthetic scenario), this means Facebook knows 24% of all distinct sites which were visited.
 
 This should bother any privacy conscious individual. If you are using uBlock Origin, you can act to what uBO-Scope is reporting to you, and in the current case, you could decide to [block connections to `facebook.com` and `facebook.net` everywhere by default](https://github.com/gorhill/uBlock/wiki/Dynamic-filtering:-to-easily-reduce-privacy-exposure).
 
