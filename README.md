@@ -34,7 +34,7 @@ I have found two glitches when the extension is used with Firefox:
 
 - Manual installation from [Releases page](https://github.com/gorhill/uBO-Scope/releases)
 - Chrome store: <https://chrome.google.com/webstore/detail/bbdpgcaljkaaigfcomhidmneffjjjfgp/>
-- Mozilla's AMO: I am trying to decide whether I should publish the extension now or wait for uBlock Origin to be WebExtensions-based in AMO.
+- Mozilla's AMO: <https://addons.mozilla.org/en-US/firefox/addon/ubo-scope_/>
 
 ## How it works
 
@@ -52,7 +52,7 @@ Hopefully this will assist you in decision-making regarding which content blocke
 
 ## Privacy policy
 
-As explained above, uBO extracts the base domain of network requests and create pairs [3rd-party base domain name, 1st-party base domain name]. Distinct pairs are stored on a day-based granularity in order to be able to compute an actual 3rd-party exposure score, and a theoritical ("averted") 3rd-party exposure score.
+As explained above, uBO-Scope extracts the base domain of network requests and create pairs [3rd-party base domain name, 1st-party base domain name]. Distinct pairs are stored on a day-based granularity in order to be able to compute an actual 3rd-party exposure score, and a theoritical ("averted") 3rd-party exposure score.
 
 **All the data created by uBO-Scope never leave your browser.**
 
@@ -61,7 +61,7 @@ The only connections uBO-Scope make to the outside world are to fetch latest ver
 - <https://publicsuffix.org/list/public_suffix_list.dat>: to correctly extract base domain names.
 - <https://raw.githubusercontent.com/disconnectme/disconnect-tracking-protection/master/services.json>: to provide metadata (ownership, category), if any, for third parties in the popup panel.
 
-(Actually, there is no code yet in the draft version to fetch these remote resources, they are currently always loaded locally).
+(Actually, there is no code yet in this early version to fetch these remote resources, they are currently always loaded locally).
 
 If you uninstall uBO-Scope, the browser will destroy its associated storage, and the data will be lost forever.
 
