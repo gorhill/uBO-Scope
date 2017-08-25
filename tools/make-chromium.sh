@@ -9,14 +9,14 @@ DES=dist/build/uBO-Scope.chromium
 rm -rf $DES
 mkdir -p $DES
 
-cp -R assets                 $DES/
-cp -R css                    $DES/
-cp -R img                    $DES/
-cp -R js                     $DES/
-cp manifest.json             $DES/
-cp *.html                    $DES/
-cp LICENSE.txt               $DES/
-cp README.md                 $DES/
+cp -R assets                       $DES/
+cp -R css                          $DES/
+cp -R img                          $DES/
+cp -R js                           $DES/
+cp *.html                          $DES/
+cp platform/chromium/manifest.json $DES/
+cp LICENSE.txt                     $DES/
+cp README.md                       $DES/
 
 if [ "$1" = all ]; then
     echo "*** uBO-Scope.chromium: Creating package..."

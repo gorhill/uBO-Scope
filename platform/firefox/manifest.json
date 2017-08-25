@@ -1,0 +1,44 @@
+{
+    "applications":{
+        "gecko":{
+            "id":"uBO-Scope@raymondhill.net",
+            "strict_min_version":"55.0"
+        }
+    },
+    "author": "Raymond Hill",
+    "background": {
+        "page": "background.html"
+    },
+    "browser_action": {
+        "default_icon": {
+            "16": "img/browsericons/logo16.png",
+            "32": "img/browsericons/logo32.png",
+            "64": "img/browsericons/logo64.png"
+        },
+        "default_title": "uBO-Scope",
+        "default_popup": "popup.html"
+    },
+    "description": "A tool to measure your 3rd-party exposure score for web sites you visit.",
+    "icons": {
+        "16": "img/browsericons/logo16.png",
+        "32": "img/browsericons/logo32.png",
+        "64": "img/browsericons/logo64.png",
+        "128": "img/browsericons/logo128.png"
+    },
+    "manifest_version": 2,
+    "minimum_chrome_version": "45.0",
+    "name": "uBO-Scope",
+    "options_ui": {
+        "page": "options.html",
+        "chrome_style": true
+    },
+    "permissions": [
+        "alarms",
+        "storage",
+        "unlimitedStorage",
+        "webRequest",
+        "<all_urls>"
+    ],
+    "short_name": "uBO-Scope",
+    "version": "0.1.5"
+}
