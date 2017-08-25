@@ -740,6 +740,10 @@ uBOScope.loadPrivexData = function(callback) {
                 this.privexData.domainIdGenerator = this.privexData.domainToIdMap.size;
                 let idToDomainMap = new Map();
                 for ( let [domain, id] of this.privexData.domainToIdMap ) {
+                    if ( idToDomainMap.has(id) ) {
+                        console.log('domain id collision!', idToDomainMap.get(id), domain);
+                        continue;
+                    }
                     idToDomainMap.set(id, domain);
                 }
                 this.privexData.idToDomainMap = idToDomainMap;
