@@ -56,7 +56,7 @@ As explained above, uBO-Scope extracts the base domain of network requests and c
 
 **All the data created by uBO-Scope never leave your browser.**
 
-The only connections uBO-Scope make to the outside world are to fetch latest version of these two reosurces, used internally by uBO-Scope:
+The only connections uBO-Scope make to the outside world are to fetch latest version of these two resources, used internally by uBO-Scope:
 
 - <https://publicsuffix.org/list/public_suffix_list.dat>: to correctly extract base domain names.
 - <https://raw.githubusercontent.com/disconnectme/disconnect-tracking-protection/master/services.json>: to provide metadata (ownership, category), if any, for third parties in the popup panel.
