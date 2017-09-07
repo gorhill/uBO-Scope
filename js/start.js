@@ -65,29 +65,27 @@ uBOScope.getDoY.dayCountLeap = [ 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 30
 
 uBOScope.hostnameFromURI = function(uri) {
     let matches = this.reCommonHostnameFromURL.exec(uri);
-    if ( matches ) {
-        return matches[1];
-    }
+    if ( matches !== null ) { return matches[1]; }
     matches = this.reAuthorityFromURI.exec(uri);
-    if ( !matches ) { return ''; }
+    if ( matches === null ) { return ''; }
     const authority = matches[1].slice(2);
     // Assume very simple authority (most common case for µBlock)
     if ( this.reHostFromNakedAuthority.test(authority) ) {
         return authority.toLowerCase();
     }
     matches = this.reHostFromAuthority.exec(authority);
-    if ( !matches ) {
+    if ( matches === null ) {
         matches = this.reIPv6FromAuthority.exec(authority);
-        if ( !matches ) { return ''; }
+        if ( matches === null ) { return ''; }
     }
-    // http://en.wikipedia.org/wiki/FQDN
-    // Also:
-    // - https://github.com/gorhill/uBlock/issues/1559
     let hostname = matches[1];
     while ( hostname.endsWith('.') ) {
         hostname = hostname.slice(0, -1);
     }
-    return hostname.toLowerCase();
+    if ( this.reMustNormalizeHostname.test(hostname) ) {
+        hostname = punycode.toASCII(hostname.toLowerCase());
+    }
+    return hostname;
 };
 
 /******************************************************************************/

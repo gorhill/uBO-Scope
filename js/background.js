@@ -63,10 +63,11 @@ var uBOScope = { // jshint ignore:line
     dtpAssetKey: 'disconnect-tracking-protection',
     reAuthorityFromURI: /^(?:[^:\/?#]+:)?(\/\/[^\/?#]+)/,
     reCommonHostnameFromURL: /^https?:\/\/([0-9a-z_][0-9a-z._-]*[0-9a-z])\//,
-    reHostFromAuthority: /^(?:[^@]*@)?([0-9a-z._-]+)(?::\d*)?$/i,
+    reHostFromAuthority: /^(?:[^@]*@)?([^:]+)(?::\d*)?$/,
     reHostFromNakedAuthority: /^[0-9a-z._-]+[0-9a-z]$/i,
     reIPAddressNaive: /^\d+\.\d+\.\d+\.\d+$|^\[[\da-zA-Z:]+\]$/,
     reIPv6FromAuthority: /^(?:[^@]*@)?(\[[0-9a-f:]+\])(?::\d*)?$/i,
+    reMustNormalizeHostname: /[^0-9a-z._-]/,
     settings: {
         daysBefore: 30,
         heatmapHue: 0,
