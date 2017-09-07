@@ -1033,6 +1033,8 @@ uBOScope.start = function() {
         }
     };
 
+    self.browser.browserAction.setBadgeBackgroundColor({ color: '#4285f4' });
+
     self.browser.tabs.onRemoved.addListener(function(tabId) {
         const tabDetails = ubo.tabIdToDetailsMap.get(tabId);
         if ( tabDetails === undefined ) { return; }
