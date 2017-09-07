@@ -779,17 +779,9 @@ uBOScope.loadPrivexData = function(callback) {
 
 /******************************************************************************/
 
-uBOScope.exportPrivexData = function() {
+uBOScope.exportPrivexData = function(callback) {
     this.exportDataFromPrivexData(exportData => {
-        let a = document.createElement('a');
-        a.type = 'text/plain';
-        a.target = '_blank';
-        a.href = URL.createObjectURL(new Blob(
-            [ JSON.stringify(exportData, null, '\t') ],
-            { type: 'text/plain;charset=utf-8', endings: 'native' }
-        ));
-        a.setAttribute('download', 'my-uboscope-data.txt');
-        a.dispatchEvent(new MouseEvent('click'));
+        callback(JSON.stringify(exportData, null, '\t'));
     });
 };
 
@@ -1147,8 +1139,8 @@ uBOScope.start = function() {
             let response;
             switch ( what ) {
             case 'doExportData':
-                ubo.exportPrivexData();
-                break;
+                ubo.exportPrivexData(callback);
+                return true;
             case 'getDaysBefore':
                 response = ubo.settings.daysBefore;
                 break;

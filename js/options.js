@@ -167,7 +167,17 @@ browser.runtime.sendMessage(
 document.querySelector('#export').addEventListener(
     'click',
     function() {
-        browser.runtime.sendMessage({ what: 'doExportData' });
+        browser.runtime.sendMessage({ what: 'doExportData' }, function(data) {
+            let a = document.createElement('a');
+            a.type = 'text/plain';
+            a.target = '_blank';
+            a.href = URL.createObjectURL(new Blob(
+                [ data ],
+                { type: 'text/plain;charset=utf-8', endings: 'native' }
+            ));
+            a.setAttribute('download', 'my-uboscope-data.txt');
+            a.dispatchEvent(new MouseEvent('click'));
+        });
     }
 );
 
