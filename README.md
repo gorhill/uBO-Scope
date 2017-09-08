@@ -34,7 +34,7 @@ I have found two glitches when the extension is used with Firefox:
 
 - Manual installation from [Releases page](https://github.com/gorhill/uBO-Scope/releases)
 - Chrome store: <https://chrome.google.com/webstore/detail/bbdpgcaljkaaigfcomhidmneffjjjfgp/>
-- Mozilla's AMO: <https://addons.mozilla.org/en-US/firefox/addon/ubo-scope_/>
+- Mozilla's AMO: <https://addons.mozilla.org/en-US/firefox/addon/ubo-scope/>
 
 ## How it works
 
