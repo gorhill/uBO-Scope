@@ -52,7 +52,7 @@ Hopefully this will assist you in decision-making regarding which content blocke
 
 ## Privacy policy
 
-As explained above, uBO-Scope extracts the base domain of network requests and create pairs [3rd-party base domain name, 1st-party base domain name]. Distinct pairs are stored on a day-based granularity in order to be able to compute an actual 3rd-party exposure score, and a theoritical ("averted") 3rd-party exposure score.
+As explained above, uBO-Scope extracts the base domain of network requests and create pairs [3rd-party base domain name, 1st-party base domain name]. Distinct pairs are stored on a day-based granularity in order to be able to compute an actual 3rd-party exposure score, and a theoretical ("averted") 3rd-party exposure score.
 
 **All the data created by uBO-Scope never leave your browser.**
 
