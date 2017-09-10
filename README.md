@@ -26,7 +26,7 @@ Early development version. **DO NOT REQUEST FEATURES.**
 
 I have found two glitches when the extension is used with Firefox:
 
-- uBO-Scope won't be able to see blocked network requests from legacy blockers if these have been enabled **before** uBO-Scope. I believe this can be addressed by installing uBO-Scope before installing legacy blockers. (uBlock Origin is currently a legacy blocker on AMO -- the webext version is not ready yet).
+- uBO-Scope won't be able to see blocked network requests from legacy blockers if these have been enabled **before** uBO-Scope. I believe this can be addressed by installing uBO-Scope before installing legacy blockers.
 
 - The popup panel does not always display as intended. Sometimes there are spurious scrollbars appearing, while they definitely should not appear.
 
