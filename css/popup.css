@@ -3,6 +3,7 @@ body {
     font-size: 14px;
     margin: 0;
     min-width: 289px;
+    overflow-x: hidden;
     padding: 0 1px 1px 1px;
 }
 .svgIcon {

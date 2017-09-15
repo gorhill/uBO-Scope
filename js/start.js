@@ -983,7 +983,8 @@ uBOScope.loadDisconnectTrackingProtectionData = function(callback) {
 
 uBOScope.start = function() {
     let ubo = this,
-        requestIds = new Map();
+        requestIds = new Map(),
+        currentTabQuery = { active: true, currentWindow: true };
 
     this.tabIdToDetailsMap.set(-1, {
         entries: [
@@ -1148,7 +1149,7 @@ uBOScope.start = function() {
                 response = ubo.settings.heatmapHue;
                 break;
             case 'getHeatmapData':
-                self.browser.tabs.query({ active: true }, function(tabs) {
+                self.browser.tabs.query(currentTabQuery, function(tabs) {
                     if ( tabs && tabs.length !== 0 ) {
                         ubo.exportHeatmapData(tabs[0].id, callback);
                     } else {
