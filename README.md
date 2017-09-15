@@ -26,7 +26,7 @@ Early development version. **DO NOT REQUEST FEATURES.**
 
 I have found two glitches when the extension is used with Firefox:
 
-- uBO-Scope won't be able to see blocked network requests from legacy blockers if these have been enabled **before** uBO-Scope. I believe this can be addressed by installing uBO-Scope before installing legacy blockers. (uBlock Origin is currently a legacy blocker on AMO -- the webext version is not ready yet).
+- uBO-Scope won't be able to see blocked network requests from legacy blockers if these have been enabled **before** uBO-Scope. I believe this can be addressed by installing uBO-Scope before installing legacy blockers.
 
 - The popup panel does not always display as intended. Sometimes there are spurious scrollbars appearing, while they definitely should not appear.
 
@@ -34,7 +34,7 @@ I have found two glitches when the extension is used with Firefox:
 
 - Manual installation from [Releases page](https://github.com/gorhill/uBO-Scope/releases)
 - Chrome store: <https://chrome.google.com/webstore/detail/bbdpgcaljkaaigfcomhidmneffjjjfgp/>
-- Mozilla's AMO: <https://addons.mozilla.org/en-US/firefox/addon/ubo-scope_/>
+- Mozilla's AMO: <https://addons.mozilla.org/en-US/firefox/addon/ubo-scope/>
 
 ## How it works
 
@@ -52,7 +52,7 @@ Hopefully this will assist you in decision-making regarding which content blocke
 
 ## Privacy policy
 
-As explained above, uBO-Scope extracts the base domain of network requests and create pairs [3rd-party base domain name, 1st-party base domain name]. Distinct pairs are stored on a day-based granularity in order to be able to compute an actual 3rd-party exposure score, and a theoritical ("averted") 3rd-party exposure score.
+As explained above, uBO-Scope extracts the base domain of network requests and create pairs [3rd-party base domain name, 1st-party base domain name]. Distinct pairs are stored on a day-based granularity in order to be able to compute an actual 3rd-party exposure score, and a theoretical ("averted") 3rd-party exposure score.
 
 **All the data created by uBO-Scope never leave your browser.**
 
