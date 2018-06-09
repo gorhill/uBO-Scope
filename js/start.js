@@ -536,7 +536,7 @@ uBOScope.exportDataFromPrivexData = function(callback) {
         storageKeys.push('monthly-' + monthId);
         monthId += 1;
         if ( monthId % 1000 > 11 ) {
-            monthId = Math.round(monthId / 1000) + 1000;
+            monthId = Math.round(monthId / 1000 + 1) * 1000;
         }
     }
 
