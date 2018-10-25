@@ -14,6 +14,8 @@ file over popup.css. A backup of the popup.css file has already been
 created as [popup.css-light-theme](./css/popup.css-light-theme). On
 the complementary git branch *dark-theme*, that step has already been taken.
 
+Also, the visibility of the popup's two icons was improved.
+
 ## Preamble
 
 The mindset of this project is as follow:
