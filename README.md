@@ -1,3 +1,19 @@
+website: https://github.com/Boruch-Baum/uBO-Scope
+
+This is a fork of [Raymond Hill](https://github.com/gorhill/)'s
+[uBO-Scope](https://github.com/gorhill/uBO-Scope), for the purpose of
+improving its visibility for users who opt for a dark firefox theme, or
+any theme for which the default font color is light. For this git
+branch, *light-theme*, minor changes were made to a single file
+[popup.css](./css/popup.css), which retains the original's preference
+for a white background, while making the foreground colors friendly
+for dark firefox themes. A second file,
+[popup.css-dark-theme](./css/popup.css-dark-theme), applies a dark
+theme to the add-on. In order to use the dark theme, just copy the
+file over popup.css. A backup of the popup.css file has already been
+created as [popup.css-light-theme](./css/popup.css-light-theme). On
+the complementary git branch *dark-theme*, that step has already been taken.
+
 ## Preamble
 
 The mindset of this project is as follow:
@@ -18,7 +34,7 @@ A network request to a remote server which has a different base domain name than
 
 A 3rd-party exposure score is derived not only from the number of distinct third parties on a web page, but also from the ubiquitousness of each of these distinct third parties.
 
-The ubiquitousness of a specific 3rd party is measured according to how frequently this 3rd party is used on web pages you visit. This means the ubiquitousness of a 3rd party will be representative of your browsing history and whether the 3rd party was blocked or not on the pages you visited. 
+The ubiquitousness of a specific 3rd party is measured according to how frequently this 3rd party is used on web pages you visit. This means the ubiquitousness of a 3rd party will be representative of your browsing history and whether the 3rd party was blocked or not on the pages you visited.
 
 ## Status
 
