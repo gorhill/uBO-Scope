@@ -80,8 +80,111 @@ var setTextContent = function(selector, text) {
 };
 
 /******************************************************************************/
-
 var renderPanel = function(data) {
+    if ( !data ) {
+        document.body.classList.add('nodata');
+        return;
+    }
+    // 1st domain. If the domain name contains Unicode characters, we will also
+    // display the plain ASCII version of the domain name.
+    let domain1stUnicode = punycode.toUnicode(data.domain1st);
+    document.querySelector('#domain1st > div:first-of-type').textContent = domain1stUnicode;
+    if ( domain1stUnicode !== data.domain1st ) {
+        document.querySelector('#domain1st > div:last-of-type').textContent = data.domain1st;
+    }
+    // Remember whether the heatmap must be rendered as a list.
+    toggleMap(localStorage.getItem('viewAsList') === '1');
+    toggleFilter(localStorage.getItem('hideBlocked') === '1');
+    // Compute and render the heatmap data into HTML.
+    let actualScoreTotal = 0,
+        theoriticalScoreTotal = 0,
+        tabConnected3rd = new Set(data.connected.tab3parties),
+        allConnected3rdToCountMap = new Map(data.connected.all3pCounts),
+        all3rdToCountMap = new Map(data.all.all3pCounts),
+        colorTemplate = 'hsl({h}, 100%, {-l}%)'.replace('{h}', data.heatmapHue),
+        reverseValue = colorTemplate.indexOf('{-l}') !== -1,
+        collator = new Intl.Collator();
+    // Remember authority info if available, for use in info card.
+    if ( Array.isArray(data.domainToAuthorityInfo) ) {
+        domainToAuthorityInfoMap = new Map(data.domainToAuthorityInfo);
+    }
+    // Order 3rd parties from most ubiquitous to least ubiquitous
+    data.all.tab3parties.sort(function(a, b) {
+        var av = all3rdToCountMap.get(a),
+            bv = all3rdToCountMap.get(b);
+        if ( av !== bv ) {
+            return bv - av;
+        }
+        return collator.compare(a, b);
+    });
+    let hmrowTemplate = document.querySelector('#templates .hmrow'),
+        cellsPerRow = hmrowTemplate.children.length,
+        ahm = document.querySelector('.heatmap.actual'), arow, acell,
+        thm = document.querySelector('.heatmap.theoretical'), trow, tcell,
+        domain3rd, actualScore, theoreticalScore, title, value;
+    for ( var ri = 0, rn = Math.ceil(data.all.tab3parties.length / cellsPerRow); ri < rn; ri++ ) {
+        arow = hmrowTemplate.cloneNode(true);
+        trow = hmrowTemplate.cloneNode(true);
+        for ( var ci = 0; ci < cellsPerRow; ci++ ) {
+            domain3rd = data.all.tab3parties[ri * cellsPerRow + ci];
+            acell = arow.children[ci];
+            tcell = trow.children[ci];
+            if ( domain3rd ) {
+                acell.setAttribute('data-domain', domain3rd);
+                tcell.setAttribute('data-domain', domain3rd);
+                actualScore = Math.max(
+                    (allConnected3rdToCountMap.get(domain3rd) || 0) / data.all1pCount * 100,
+                    1
+                );
+                acell.setAttribute('data-actual-score', actualScore);
+                tcell.setAttribute('data-actual-score', actualScore);
+                if ( tabConnected3rd.has(domain3rd) ) {
+                    actualScoreTotal += actualScore;
+                    value = Math.max(actualScore, 5);
+                    if ( reverseValue ) { value = 100 - value; }
+                    acell.children[0].style.backgroundColor = colorTemplate.replace(/\{-?l\}/, value.toFixed(0));
+                } else {
+                    acell.classList.add('blocked');
+                }
+                theoreticalScore = Math.max(
+                    all3rdToCountMap.get(domain3rd) / data.all1pCount * 100,
+                    1
+                );
+                acell.setAttribute('data-theoretical-score', theoreticalScore);
+                tcell.setAttribute('data-theoretical-score', theoreticalScore);
+                // TODO: still need to investigate why this can happen
+                if ( isNaN(theoreticalScore) === false ) {
+                    theoriticalScoreTotal += theoreticalScore;
+                }
+                value = Math.max(theoreticalScore, 5);
+                if ( reverseValue ) { value = 100 - value; }
+                tcell.children[0].style.backgroundColor = colorTemplate.replace(/\{-?l\}/, value.toFixed(0));
+                
+                //My added part
+                
+                let authorityInfo = domainToAuthorityInfoMap.get(domain3rd);
+                let infoString = "";
+                if ( authorityInfo !== undefined ) {
+                    infoString = (authorityInfo.category || '') + " " + (authorityInfo.authority || '') + ": ";
+                }
+                
+                title = infoString + domain3rd + ' ' + lpadNumber(actualScore, 2) + ' / ' + lpadNumber(theoreticalScore, 2);
+                //End added part
+                acell.children[1].textContent = title;
+                tcell.children[1].textContent = title;
+            }
+        }
+        ahm.appendChild(arow);
+        thm.appendChild(trow);
+    }
+    document.querySelector('.scores .score.actual').textContent = Math.ceil(actualScoreTotal);
+    document.querySelector('.scores .score.theoretical').textContent = '/ ' + Math.ceil(theoriticalScoreTotal);
+    document.getElementById('heatmaps').style.paddingTop =
+        document.getElementById('topPane').getBoundingClientRect().bottom + 'px';
+    document.body.classList.toggle('oneDay', data.since === 1);
+    setTextContent('#domain3rdDetails .since', data.since);
+}
+/* var renderPanel = function(data) {
     if ( !data ) {
         document.body.classList.add('nodata');
         return;
@@ -175,7 +278,7 @@ var renderPanel = function(data) {
     document.body.classList.toggle('oneDay', data.since === 1);
     setTextContent('#domain3rdDetails .since', data.since);
 };
-
+*/
 /******************************************************************************/
 
 var showDomain3rdDetails = function(cell) {
@@ -196,7 +299,7 @@ var showDomain3rdDetails = function(cell) {
         domain3rdDetails.querySelector('#authority .details').classList.add('hide');
     }
     domain3rdDetails.classList.remove('hide');
-};
+}; 
 
 document.body.addEventListener(
     'mouseover',
