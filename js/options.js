@@ -181,6 +181,17 @@ document.querySelector('#export').addEventListener(
     }
 );
 
+////////////////// Copying the style they used to add listener to button rather than do my normal way
+document.querySelector('#makecharts').addEventListener(
+    'click',
+    function() {
+        console.log("clicked the button");
+        window.open(chrome.runtime.getURL('sankey.html'));
+
+    }
+);
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /******************************************************************************/
 
 browser.runtime.sendMessage(
