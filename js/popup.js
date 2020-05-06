@@ -168,7 +168,7 @@ var renderPanel = function(data) {
                     infoString = (authorityInfo.category || '') + " " + (authorityInfo.authority || '') + ": ";
                 }
                 
-                title = infoString + domain3rd + ' ' + lpadNumber(actualScore, 2) + ' / ' + lpadNumber(theoreticalScore, 2);
+                title = /*infoString + */ domain3rd + ' ' + lpadNumber(actualScore, 2) + ' / ' + lpadNumber(theoreticalScore, 2);
                 //End added part
                 acell.children[1].textContent = title;
                 tcell.children[1].textContent = title;
