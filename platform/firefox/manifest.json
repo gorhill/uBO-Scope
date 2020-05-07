@@ -39,6 +39,7 @@
         "webRequest",
         "<all_urls>"
     ],
+    "content_security_policy": "script-src 'self' 'unsafe-eval' https://www.gstatic.com/charts/loader.js https://www.gstatic.com/charts/47/loader.js https://www.gstatic.com/charts/47/js/jsapi_compiled_format_module.js https://www.gstatic.com/charts/47/js/jsapi_compiled_default_module.js https://www.gstatic.com/charts/47/js/jsapi_compiled_ui_module.js https://www.gstatic.com/charts/47/js/jsapi_compiled_corechart_module.js https://www.gstatic.com/charts/47/js/jsapi_compiled_fw_module.js https://www.gstatic.com/charts/47/third_party/d3/v5/d3.js https://www.gstatic.com/charts/47/third_party/d3_sankey/v4/d3.sankey.js https://www.gstatic.com/charts/47/js/jsapi_compiled_sankey_module.js; object-src 'self'; script-src-elem 'self';",
     "short_name": "uBO-Scope",
     "version": "0.1.12"
 }
