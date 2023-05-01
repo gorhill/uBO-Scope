@@ -144,7 +144,7 @@ Now what will uBO-Scope report if I disable uBlock Origin for that site? Here is
 
 ![](https://cloud.githubusercontent.com/assets/585534/23466213/6f4b77ba-fe68-11e6-8ed6-85099092605f.png)
 
-Wait... Since nothing is blocked anymore on the page, how can the averted score be different than the sctual score?
+Wait... Since nothing is blocked anymore on the page, how can the averted score be different than the actual score?
 
 It is very important to keep in mind that **3rd-party exposure scores are computed according to whatever data has been fed to uBO-Scope so far**.
 
