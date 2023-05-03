@@ -16,8 +16,8 @@ svg {
     width: 100%;
 }
 #topPane {
-    background-color: white;
-    color: black;
+    background-color: black;
+    color: white;
     left: 0;
     position: fixed;
     right: 0;
@@ -86,9 +86,9 @@ body.nodata .nodata {
     display: block;
 }
 #domain3rdDetails {
-    background-color: #f6f6ff;
-    color: black;
-    border: 1px solid #e5e5ff;
+    background-color: #020202;
+    color: white;
+    border: 1px solid #aaaaaa;
     bottom: 2px;
     display: flex;
     flex-direction: column;
@@ -119,8 +119,8 @@ body.nodata .nodata {
     font-size: 110%;
 }
 #domain3rdDetails #authority {
-    background-color: #e5e5ff;
-    color: black;
+    background-color: #020202;
+    color: white;
     position: relative;
 }
 #domain3rdDetails #authority .details {
@@ -166,8 +166,8 @@ body.oneDay #domain3rdDetails .oneDay {
     display: inline;
 }
 #heatmaps {
-    background-color: white;
-    color: black;
+    background-color: black;
+    color: white;
 }
 body.nodata #heatmaps {
     display: none;
@@ -237,7 +237,7 @@ body.theoretical #heatmaps .heatmap.theoretical {
 }
 .hmcell[data-domain] {
     background-color: #eee;
-    color: black;
+    color: white;
 }
 .hmcell.blocked {
     color: #777;
@@ -260,7 +260,7 @@ body.theoretical #heatmaps .heatmap.theoretical {
 }
 .hmcell[data-domain].blocked .hmcolor {
     background-color: #eee;
-    color: black;
+    color: white;
 }
 .hmlabel {
     display: none;
@@ -272,8 +272,8 @@ body.theoretical #heatmaps .heatmap.theoretical {
     margin: 0;
 }
 #heatmaps.list .hmcell {
-    background-color: #f8f8f8;
-    color: black;
+    background-color: #020202;
+    color: white;
     display: block;
     height: 28px;
     margin: 0;
