@@ -2,7 +2,7 @@
 
 The mindset of this project is as follow:
 
-Data created on a remote server as a result of you merely connecting to that server **will be used**, including used against your own interests. The privacy policy of whatever entity who owns a remote server is completely irrelevant, if the data is created in the first place, it **will** be used.
+Data created on a remote server as a result of you merely connecting to that server **will be used**, including used against your own interests. The privacy policy of whatever entity who owns a remote server is completely irrelevant: if the data is created in the first place, it **will** be used.
 
 ## Purpose
 
