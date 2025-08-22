@@ -37,5 +37,5 @@ jobs:
           draft: true
           prerelease: true
           files: |
-            dist/build/uBlock0_${{ env.VERSION }}.chromium.zip
-            dist/build/uBlock0_${{ env.VERSION }}.firefox.xpi
+            build/uBlock0_${{ env.VERSION }}.chromium.zip
+            build/uBlock0_${{ env.VERSION }}.firefox.xpi
