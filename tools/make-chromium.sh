@@ -5,7 +5,7 @@
 echo "*** uBO-Scope.chromium: Creating web store package"
 echo "*** uBO-Scope.chromium: Copying files"
 
-DES=dist/build/uBO-Scope.chromium
+DES=build/uBO-Scope.chromium
 rm -rf $DES
 mkdir -p $DES
 
@@ -17,6 +17,9 @@ cp *.html                          $DES/
 cp platform/chromium/manifest.json $DES/
 cp LICENSE.txt                     $DES/
 cp README.md                       $DES/
+
+mkdir -p $DES/js/lib
+cp node_modules/punycode/punycode.es6.js $DES/js/lib/
 
 if [ "$1" = all ]; then
     echo "*** uBO-Scope.chromium: Creating package..."

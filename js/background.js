@@ -19,60 +19,287 @@
     Home: https://github.com/gorhill/uBO-Scope
 */
 
-'use strict';
+import {
+    browser,
+    runtime,
+    sessionRead,
+    sessionWrite,
+} from './ext.js';
+import {
+    deserialize,
+    serialize,
+} from './lib/s14e-serializer.js';
+import { default as psl } from './lib/publicsuffixlist.js';
+import { default as punycode } from './lib/punycode.es6.js';
 
 /******************************************************************************/
 
-if ( self.browser instanceof Object === false ) {
-    if ( self.chrome instanceof Object === false ) {
-        throw new Error('!?!');
-    }
-    self.browser = self.chrome;
+const manifest = runtime.getManifest();
+
+const TABDETAILS_ENTITY = {
+    domain: '',
+    hostname: '',
+    allowed: {
+        domains: new Map(),
+        hostnames: new Map(),
+    },
+    stealth: {
+        domains: new Map(),
+        hostnames: new Map(),
+    },
+    blocked: {
+        domains: new Map(),
+        hostnames: new Map(),
+    },
+};
+
+const reIsNetwork = /^(?:https?|wss?):/;
+
+/******************************************************************************/
+
+const session = {
+    networkRequestDB: new Map(),
+    tabIdToDetailsMap: new Map(),
+};
+
+async function loadSessionData() {
+    const s = await sessionRead('sessionData');
+    if ( typeof s !== 'string' ) { return; }
+    Object.assign(session, deserialize(s));
+}
+
+async function saveSessionData() {
+    const s = serialize(session);
+    await sessionWrite('sessionData', s);
 }
 
 /******************************************************************************/
 
-var uBOScope = { // jshint ignore:line
-    version: '0.1.0',
-    noopFunc: function() {},
-    lefthandOffset: Math.pow(2, 26),
-    righthandMask: 0x3FFFFFF,
-    privexData: {
-        domainIdGenerator: 1,
-        domainToIdMap: new Map(),
-        idToDomainMap: new Map(),
-        monthlyMetadata: {
-            monthIdMin: Number.MAX_SAFE_INTEGER,
-            monthIdMax: Number.MIN_SAFE_INTEGER,
-        },
-        monthly: new Map(),
-        daily: new Map(),
-    },
-    authorityData: {
-        stringToStringId: new Map(),
-        stringIdToString: new Map(),
-        domainIdToCategoryId: new Map(),
-        domainIdToAuthorityId: new Map(),
-    },
-    mustSaveBits: 0,
-    mustSaveTimer: false,
-    DIRTY_DOMAIN_TO_ID_MAP: 1,
-    DIRTY_DAILY_MAP: 2,
-    DIRTY_MONTHLY_MAP: 4,
-    pslAssetKey: 'public_suffix_list.dat',
-    dtpAssetKey: 'disconnect-tracking-protection',
-    reAuthorityFromURI: /^(?:[^:\/?#]+:)?(\/\/[^\/?#]+)/,
-    reCommonHostnameFromURL: /^https?:\/\/([0-9a-z_][0-9a-z._-]*[0-9a-z])\//,
-    reHostFromAuthority: /^(?:[^@]*@)?([^:]+)(?::\d*)?$/,
-    reHostFromNakedAuthority: /^[0-9a-z._-]+[0-9a-z]$/i,
-    reIPAddressNaive: /^\d+\.\d+\.\d+\.\d+$|^\[[\da-zA-Z:]+\]$/,
-    reIPv6FromAuthority: /^(?:[^@]*@)?(\[[0-9a-f:]+\])(?::\d*)?$/i,
-    reMustNormalizeHostname: /[^0-9a-z._-]/,
-    settings: {
-        daysBefore: 30,
-        heatmapHue: 0,
-    },
-    tabIdToDetailsMap: new Map(),
-};
+async function loadPublicSuffixList() {
+    const s = await sessionRead('publicSuffixList');
+    if ( typeof s === 'string' ) {
+        const selfie = deserialize(s);
+        if ( psl.fromSelfie(selfie) ) { return; }
+    }
+    const response = await fetch(
+        '/assets/thirdparties/publicsuffix.org/list/public_suffix_list.dat'
+    );
+    const content = await response.text();
+    psl.parse(content, punycode.toASCII);
+    const selfie = psl.toSelfie();
+    sessionWrite('publicSuffixList', serialize(selfie));
+}
+
+/******************************************************************************/
+
+const urlParser = new URL('about:blank');
+
+function hostnameFromURI(url) {
+    urlParser.href = url;
+    return urlParser.hostname || '';
+}
+
+function domainFromHostname(hostname) {
+    return psl.getDomain(hostname) ||
+           psl.getPublicSuffix(hostname);
+}
+
+/******************************************************************************/
+
+function updateTabBadge(tabId) {
+    if ( tabId === -1 ) { return; }
+    const tabDetails = session.tabIdToDetailsMap.get(tabId);
+    if ( tabDetails === undefined ) { return; }
+    let count = tabDetails.allowed.domains.size;
+    if ( tabDetails.allowed.domains.has(tabDetails.domain) ) {
+        count -= 1;
+    }
+    browser.action.setBadgeText({
+        tabId,
+        text: count !== 0 ? `${count}` : ''
+    }).catch(( ) => {
+    });
+}
+
+/******************************************************************************/
+
+function tabDetailsReset(tabDetails) {
+    tabDetails.domain = '';
+    tabDetails.hostname = '';
+    tabDetails.allowed.domains.clear();
+    tabDetails.allowed.hostnames.clear();
+    tabDetails.stealth.domains.clear();
+    tabDetails.stealth.hostnames.clear();
+    tabDetails.blocked.domains.clear();
+    tabDetails.blocked.hostnames.clear();
+}
+
+function outcomeDetailsAdd(outcomeDetails, hostname) {
+    let count = outcomeDetails.hostnames.get(hostname) || 0;
+    outcomeDetails.hostnames.set(hostname, count+1);
+    const domain = domainFromHostname(hostname);
+    const r = outcomeDetails.domains.has(domain);
+    count = outcomeDetails.domains.get(domain) || 0;
+    outcomeDetails.domains.set(domain, count+1);
+    return r;
+}
+
+/******************************************************************************/
+
+function recordOutcome(tabId, request) {
+    const { type, url } = request;
+    const tabDetails = session.tabIdToDetailsMap.get(tabId) ||
+        structuredClone(TABDETAILS_ENTITY);
+    if ( tabDetails.tabId === undefined ) {
+        tabDetails.tabId = tabId;
+        session.tabIdToDetailsMap.set(tabId, tabDetails);
+    }
+    const hostname = hostnameFromURI(url);
+    if ( type === 'main_frame' ) {
+        tabDetailsReset(tabDetails);
+        tabDetails.hostname = hostname;
+        tabDetails.domain = domainFromHostname(hostname);
+        return true;
+    }
+    if ( tabDetails.hostname === '' && request.frameId === 0 ) {
+        const top = request.initiator || request.documentUrl;
+        if ( top ) {
+            tabDetails.hostname = hostnameFromURI(top);
+            tabDetails.domain = domainFromHostname(tabDetails.hostname);
+        }
+    }
+    switch ( request.event ) {
+    case 'redirect':
+        outcomeDetailsAdd(tabDetails.stealth, hostname);
+        break;
+    case 'error':
+        outcomeDetailsAdd(tabDetails.blocked, hostname);
+        break;
+    case 'success':
+        if ( outcomeDetailsAdd(tabDetails.allowed, hostname) ) { return true; }
+        return true;
+    default:
+        break;
+    }
+    return false;
+}
+
+/******************************************************************************/
+
+const networkRequestJournal = [];
+let networkRequestJournalTimer;
+
+async function processNetworkRequestJournal() {
+    await appIsReady;
+    const tabIds = new Set();
+    for ( const request of networkRequestJournal ) {
+        const { tabId, requestId } = request;
+        if ( request.tabId === -1 ) { continue; }
+        const reqDetails = session.networkRequestDB.get(requestId) || { request };
+        if ( reqDetails.first === undefined ) {
+            reqDetails.first = true;
+            session.networkRequestDB.set(requestId, reqDetails);
+        } else {
+            reqDetails.first = false;
+            Object.assign(reqDetails.request, request);
+        }
+        if ( request.event === 'redirect' ) {
+            if ( reIsNetwork.test(request.redirectUrl) === false ) {
+                recordOutcome(tabId, request);
+                session.networkRequestDB.delete(requestId);
+            }
+            continue;
+        }
+        if ( request.event === 'error' ) {
+            recordOutcome(tabId, request);
+            session.networkRequestDB.delete(requestId);
+            continue;
+        }
+        if ( request.event === 'success' ) {
+            if ( request.ip || request.statusCode !== 0 ) {
+                if ( recordOutcome(tabId, request) ) {
+                    tabIds.add(request.tabId);
+                }
+            } else {
+                request.event = 'error';
+                recordOutcome(tabId, request);
+            }
+            session.networkRequestDB.delete(requestId);
+            continue;
+        }
+    }
+    networkRequestJournal.length = 0;
+    for ( const tabId of tabIds ) {
+        updateTabBadge(tabId);
+    }
+    if ( tabIds.size !== 0 ) {
+        saveSessionData();
+    }
+}
+
+function queueNetworkRequest(details, event) {
+    details.event = event;
+    networkRequestJournal.push(details);
+    if ( networkRequestJournalTimer !== undefined ) { return; }
+    networkRequestJournalTimer = setTimeout(( ) => {
+        networkRequestJournalTimer = undefined;
+        processNetworkRequestJournal();
+    }, 1000);
+}
+
+browser.webRequest.onBeforeRedirect.addListener(details => {
+    queueNetworkRequest(details, 'redirect');
+}, { urls: manifest.host_permissions });
+
+browser.webRequest.onErrorOccurred.addListener(details => {
+    queueNetworkRequest(details, 'error');
+}, { urls: manifest.host_permissions });
+
+browser.webRequest.onResponseStarted.addListener(details => {
+    queueNetworkRequest(details, 'success');
+}, { urls: manifest.host_permissions });
+
+/******************************************************************************/
+
+runtime.onMessage.addListener((msg, sender, callback) => {
+    let response;
+    switch ( msg?.what ) {
+    case 'getTabData': {
+        const { tabId } = msg;
+        response = appIsReady.then(( ) => {
+            const tabDetails = session.tabIdToDetailsMap.get(tabId);
+            callback(serialize(tabDetails));
+        });
+        break;
+    }
+    default:
+        break;
+    }
+    if ( response instanceof Promise ) {
+        response.then(r => { callback(r); });
+        return true;
+    }
+    callback(response);
+    return false;
+});
+
+/******************************************************************************/
+
+browser.tabs.onRemoved.addListener(async tabId => {
+    await appIsReady;
+    const tabDetails = session.tabIdToDetailsMap.get(tabId);
+    if ( tabDetails === undefined ) { return; }
+    session.tabIdToDetailsMap.delete(tabId);
+    saveSessionData();
+});
+
+/******************************************************************************/
+
+const appIsReady = (( ) => {
+    return Promise.all([
+        loadPublicSuffixList(),
+        loadSessionData(),
+    ]);
+})();
 
 /******************************************************************************/

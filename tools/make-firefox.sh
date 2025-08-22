@@ -5,7 +5,7 @@
 echo "*** uBO-Scope.firefox: Creating web store package"
 echo "*** uBO-Scope.firefox: Copying files"
 
-DES=dist/build/uBO-Scope.firefox
+DES=build/uBO-Scope.firefox
 rm -rf $DES
 mkdir -p $DES
 

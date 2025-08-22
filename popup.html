@@ -3,88 +3,37 @@
 
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark" />
 <link rel="stylesheet" href="css/popup.css" type="text/css">
 <title>uBO-Scope</title>
 </head>
 
-<body>
-<!-- <a href="dashboard.html" target="_blank" id="gotoPrefs" data-i18n-tip="popupTipDashboard" data-tip-position="under"><span id="appname"> </span> <span id="version"> </span></a> -->
-<!-- <h1>third-party exposure (lower is better)</h1> -->
+<body class="loading">
+<h2 id="tabHostname"><span></span><span>NO DATA</span></h2>
+<main>
+    <section id="summary">
+        Distinct third parties reached: <span>?</span>
+    </section>
+    <section class="outcome allowed">
+        <h3>not blocked</h3>
+        <div class="domains"></div>
+    </section>
+    <section class="outcome stealth">
+        <h3>stealth-blocked</h3>
+        <div class="domains"></div>
+    </section>
+    <section class="outcome blocked">
+        <h3>blocked</h3>
+        <div class="domains"></div>
+    </section>
+</main>
 
-<div class="nodata">no data</div>
-<div id="topPane">
-    <div id="domain1st">
-        <div class="domain"></div>
-        <div class="domain"></div>
-    </div>
-    <div id="scores">
-        <div class="scores"><span class="score actual"></span><span class="score theoretical"></span></div>
-    </div>
-    <div id="domain3rdDetails" class="hide">
-        <div id="authority">
-            <div class="removeIcon"><svg viewBox="0 0 20 20"><path d="M1,1 20,20M1,20 20,1" /></svg></div>
-            <p><span class="domain"></span></p>
-            <p class="details hide"><span class="entity"></span> <span class="category"></span>&nbsp;</p>
-        </div>
-        <div>
-            <p>Connected to on <span class="aExposure important"></span> of all web sites you visited <span class="manyDays">in the last <span class="since important"></span> days</span><span class="oneDay">today</span>.
-            </p>
-        </div>
-        <div>
-            <p>Used by <span class="tExposure important"></span> of all web sites you visited <span class="manyDays">in the last <span class="since important"></span> days</span><span class="oneDay">today</span>.
-            </p>
-        </div>
-        <!-- <div>... of all distinct web sites you have visited in the last <span class="since important"></span> days.</div> -->
-    </div>
-</div>
+<template id="domainRow">
+    <div class="row"><span class="domain">_</span><span class="count badge">_</span></div>
+</template>
 
-<div id="heatmaps" class="">
-    <div class="togglerBar">
-        <!--
-            SVG-based icons below were extracted from
-            fontawesome-webfont.svg v4.7. Excerpt of copyright notice at
-            the top of the file:
-
-            > Created by FontForge 20120731 at Mon Oct 24 17:37:40 2016
-            > By ,,,
-            > Copyright Dave Gandy 2016. All rights reserved.
-
-            Excerpt of the license information in the fontawesome CSS
-            file bundled with the package:
-
-            > Font Awesome 4.7.0 by @davegandy - http://fontawesome.io - @fontawesome
-            > License - http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)
-        -->
-        <span class="svgIcon togglerIcon">
-            <svg id="th-list" viewBox="0 0 1792 1792"><path transform="scale(1,-1) translate(0,-1536)" d="M512 288v-192q0 -40 -28 -68t-68 -28h-320q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h320q40 0 68 -28t28 -68zM512 800v-192q0 -40 -28 -68t-68 -28h-320q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h320q40 0 68 -28t28 -68zM1792 288v-192q0 -40 -28 -68t-68 -28h-960q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h960q40 0 68 -28t28 -68zM512 1312v-192q0 -40 -28 -68t-68 -28h-320q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h320q40 0 68 -28t28 -68zM1792 800v-192q0 -40 -28 -68t-68 -28h-960q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h960q40 0 68 -28t28 -68zM1792 1312v-192q0 -40 -28 -68t-68 -28h-960q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h960q40 0 68 -28t28 -68z" /></svg>
-            <svg id="th" viewBox="0 0 1792 1792"><path transform="scale(1,-1) translate(0,-1536)" d="M512 288v-192q0 -40 -28 -68t-68 -28h-320q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h320q40 0 68 -28t28 -68zM512 800v-192q0 -40 -28 -68t-68 -28h-320q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h320q40 0 68 -28t28 -68zM1152 288v-192q0 -40 -28 -68t-68 -28h-320q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h320q40 0 68 -28t28 -68zM512 1312v-192q0 -40 -28 -68t-68 -28h-320q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h320q40 0 68 -28t28 -68zM1152 800v-192q0 -40 -28 -68t-68 -28h-320q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h320q40 0 68 -28t28 -68zM1792 288v-192q0 -40 -28 -68t-68 -28h-320q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h320q40 0 68 -28t28 -68zM1152 1312v-192q0 -40 -28 -68t-68 -28h-320q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h320q40 0 68 -28t28 -68zM1792 800v-192q0 -40 -28 -68t-68 -28h-320q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h320q40 0 68 -28t28 -68zM1792 1312v-192q0 -40 -28 -68t-68 -28h-320q-40 0 -68 28t-28 68v192q0 40 28 68t68 28h320q40 0 68 -28t28 -68z" /></svg>
-        </span>
-        <span class="svgIcon filterIcon">
-            <svg id="filter" viewBox="0 0 1792 1792"><path transform="scale(1,-1) translate(0,-1536)" d="M1403 1241q17 -41 -14 -70l-493 -493v-742q0 -42 -39 -59q-13 -5 -25 -5q-27 0 -45 19l-256 256q-19 19 -19 45v486l-493 493q-31 29 -14 70q17 39 59 39h1280q42 0 59 -39z" />
-        </span>
-    </div>
-    <div class="heatmap actual"></div>
-    <div class="heatmap theoretical"></div>
-</div>
-
-<div id="templates" style="display: none;">
-    <div class="hmrow"><!--
-     --><div class="hmcell"><span class="hmcolor"></span><span class="hmlabel domain"></span></div><!--
-     --><div class="hmcell"><span class="hmcolor"></span><span class="hmlabel domain"></span></div><!--
-     --><div class="hmcell"><span class="hmcolor"></span><span class="hmlabel domain"></span></div><!--
-     --><div class="hmcell"><span class="hmcolor"></span><span class="hmlabel domain"></span></div><!--
-     --><div class="hmcell"><span class="hmcolor"></span><span class="hmlabel domain"></span></div><!--
-     --><div class="hmcell"><span class="hmcolor"></span><span class="hmlabel domain"></span></div><!--
-     --><div class="hmcell"><span class="hmcolor"></span><span class="hmlabel domain"></span></div><!--
-     --><div class="hmcell"><span class="hmcolor"></span><span class="hmlabel domain"></span></div><!--
-     --><div class="hmcell"><span class="hmcolor"></span><span class="hmlabel domain"></span></div><!--
-     --><div class="hmcell"><span class="hmcolor"></span><span class="hmlabel domain"></span></div><!--
- --></div>
-</div>
-    
-<script src="js/punycode.js"></script>
-<script src="js/popup.js"></script>
-
+<script src="js/popup.js" type="module"></script>
 </body>
 
 </html>

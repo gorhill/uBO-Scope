@@ -1,44 +1,47 @@
 {
-    "applications":{
-        "gecko":{
-            "id":"uBO-Scope@raymondhill.net",
-            "strict_min_version":"55.0"
-        }
+  "action": {
+    "default_icon": {
+      "16": "img/browsericons/logo16.png",
+      "32": "img/browsericons/logo32.png",
+      "64": "img/browsericons/logo64.png",
+      "128": "img/browsericons/logo128.png"
     },
-    "author": "Raymond Hill",
-    "background": {
-        "page": "background.html"
+    "default_title": "uBO-Scope",
+    "default_popup": "popup.html"
+  },
+  "author": "Raymond Hill",
+  "background": {
+    "scripts": [ "/js/background.js" ],
+    "type": "module"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "uBOLiteRedux@raymondhill.net",
+      "strict_min_version": "128.0"
     },
-    "browser_action": {
-        "default_icon": {
-            "16": "img/browsericons/logo16.png",
-            "32": "img/browsericons/logo32.png",
-            "64": "img/browsericons/logo64.png"
-        },
-        "default_title": "uBO-Scope",
-        "default_popup": "popup.html"
-    },
-    "description": "A tool to measure your 3rd-party exposure score for web sites you visit.",
-    "icons": {
-        "16": "img/browsericons/logo16.png",
-        "32": "img/browsericons/logo32.png",
-        "64": "img/browsericons/logo64.png",
-        "128": "img/browsericons/logo128.png"
-    },
-    "manifest_version": 2,
-    "minimum_chrome_version": "45.0",
-    "name": "uBO-Scope",
-    "options_ui": {
-        "page": "options.html",
-        "chrome_style": true
-    },
-    "permissions": [
-        "alarms",
-        "storage",
-        "unlimitedStorage",
-        "webRequest",
-        "<all_urls>"
-    ],
-    "short_name": "uBO-Scope",
-    "version": "0.1.12"
+    "gecko_android": {
+      "strict_min_version": "128.0"
+    }
+  },
+  "description": "A tool which reports remote server connections",
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*",
+    "wss://*/*",
+    "ws://*/*"
+  ],
+  "icons": {
+    "16": "img/browsericons/logo16.png",
+    "32": "img/browsericons/logo32.png",
+    "64": "img/browsericons/logo64.png",
+    "128": "img/browsericons/logo128.png"
+  },
+  "manifest_version": 3,
+  "name": "uBO Scope",
+  "permissions": [
+    "storage",
+    "webRequest"
+  ],
+  "short_name": "uBO Scope",
+  "version": "1.0.0"
 }
