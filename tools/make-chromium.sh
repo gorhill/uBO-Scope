@@ -21,7 +21,7 @@ cp README.md                       $DES/
 mkdir -p $DES/js/lib
 cp node_modules/punycode/punycode.es6.js $DES/js/lib/
 
-if [ "$1" = all ]; then
+if [ -n "$1" ]; then
     echo "*** uBO-Scope.chromium: Creating package..."
     pushd $(dirname $DES) > /dev/null
     zip uBO-Scope.chromium.zip -qr $(basename $DES)/*

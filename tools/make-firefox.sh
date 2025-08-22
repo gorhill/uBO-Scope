@@ -18,7 +18,7 @@ cp platform/firefox/manifest.json $DES/
 cp LICENSE.txt                    $DES/
 cp README.md                      $DES/
 
-if [ "$1" = all ]; then
+if [ -n "$1" ]; then
     echo "*** uBO-Scope.firefox: Creating package..."
     pushd $DES > /dev/null
     zip ../$(basename $DES).xpi -qr *
