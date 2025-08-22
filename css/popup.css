@@ -16,11 +16,30 @@
 :root {
     --surface-0: white;
     --surface-1: rgb(240 240 242);
+    --ink-0: black;
+    --ink-1: rgb(32 18 58);
+    --section-header-opacity: 0.1;
+    --section-badge-opacity: 0.05;
+    --registry-row-opacity: 0.05;
+}
+
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --surface-0: black;
+        --surface-1: rgb(27 27 35);
+        --ink-0: white;
+        --ink-1: rgb(240 240 242);
+        --section-header-opacity: 0.3;
+        --section-badge-opacity: 0.2;
+        --registry-row-opacity: 0.2;
+    }
 }
 
 body {
     background-color: var(--surface-1);
     box-sizing: border-box;
+    color: var(--ink-1);
     font-size: 15px;
     font-family: Inter;
     margin: 0;
@@ -68,11 +87,11 @@ main section.outcome h3 {
 }
 
 main section.outcome:is(.allowed) h3 {
-    background-color: rgba(0 255 0 / 0.1);
+    background-color: rgba(0 255 0 / var(--section-header-opacity));
 }
 
 main section.outcome:is(.stealth,.blocked) h3 {
-    background-color: rgba(255 0 0 / 0.1);
+    background-color: rgba(255 0 0 / var(--section-header-opacity));
 }
 
 main section.outcome:has(.domains:empty) {
@@ -86,7 +105,7 @@ main section.outcome .row {
 }
 
 main section.outcome .row:nth-of-type(2n+2) {
-    background-color: rgba(128 128 128 /0.05);
+    background-color: rgba(128 128 128 / var(--registry-row-opacity));
 }
 
 main section.outcome .domains .row .badge {
@@ -95,11 +114,11 @@ main section.outcome .domains .row .badge {
 }
 
 main section.outcome:is(.allowed) .domains .row .badge {
-    background-color: rgba(0 255 0 / 0.05);
+    background-color: rgba(0 255 0 / var(--section-badge-opacity));
 }
 
 main section.outcome:is(.stealth,.blocked) .domains .row .badge {
-    background-color: rgba(255 0 0 / 0.05);
+    background-color: rgba(255 0 0 / var(--section-badge-opacity));
 }
 
 main section.outcome .domains .row .domain {
