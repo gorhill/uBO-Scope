@@ -25,7 +25,11 @@ jobs:
       - name: Build packages
         run: |
           tools/make-chromium.sh ${{ env.VERSION }}
+          mv build/uBO-Scope.chromium.zip \
+            build/uBO-Scope_${{ env.VERSION }}.chromium.zip
           tools/make-firefox.sh ${{ env.VERSION }}
+          mv build/uBO-Scope.firefox.xpi \
+            build/uBO-Scope_${{ env.VERSION }}.firefox.xpi
       - name: Create GitHub release
         id: create_release
         uses: softprops/action-gh-release@v2
@@ -37,5 +41,5 @@ jobs:
           draft: true
           prerelease: true
           files: |
-            build/uBlock0_${{ env.VERSION }}.chromium.zip
-            build/uBlock0_${{ env.VERSION }}.firefox.xpi
+            build/uBO-Scope_${{ env.VERSION }}.chromium.zip
+            build/uBO-Scope_${{ env.VERSION }}.firefox.xpi
