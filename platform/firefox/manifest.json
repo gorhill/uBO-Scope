@@ -16,7 +16,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "uBOLiteRedux@raymondhill.net",
+      "id": "uBO-Scope@raymondhill.net",
       "strict_min_version": "128.0"
     },
     "gecko_android": {
