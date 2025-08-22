@@ -110,6 +110,7 @@ main section.outcome .row:nth-of-type(2n+2) {
 
 main section.outcome .domains .row .badge {
     flex-shrink: 0;
+    padding-inline-end: 2px;
     width: 0.5em;
 }
 
