@@ -58,7 +58,6 @@ const reIsNetwork = /^(?:https?|wss?):/;
 /******************************************************************************/
 
 const session = {
-    networkRequestDB: new Map(),
     tabIdToDetailsMap: new Map(),
 };
 
@@ -110,10 +109,7 @@ function updateTabBadge(tabId) {
     if ( tabId === -1 ) { return; }
     const tabDetails = session.tabIdToDetailsMap.get(tabId);
     if ( tabDetails === undefined ) { return; }
-    let count = tabDetails.allowed.domains.size;
-    if ( tabDetails.allowed.domains.has(tabDetails.domain) ) {
-        count -= 1;
-    }
+    const count = tabDetails.allowed.domains.size;
     browser.action.setBadgeText({
         tabId,
         text: count !== 0 ? `${count}` : ''
@@ -159,6 +155,7 @@ function recordOutcome(tabId, request) {
         tabDetailsReset(tabDetails);
         tabDetails.hostname = hostname;
         tabDetails.domain = domainFromHostname(hostname);
+        outcomeDetailsAdd(tabDetails.allowed, hostname);
         return true;
     }
     if ( tabDetails.hostname === '' && request.frameId === 0 ) {
@@ -193,26 +190,16 @@ async function processNetworkRequestJournal() {
     await appIsReady;
     const tabIds = new Set();
     for ( const request of networkRequestJournal ) {
-        const { tabId, requestId } = request;
+        const { tabId } = request;
         if ( request.tabId === -1 ) { continue; }
-        const reqDetails = session.networkRequestDB.get(requestId) || { request };
-        if ( reqDetails.first === undefined ) {
-            reqDetails.first = true;
-            session.networkRequestDB.set(requestId, reqDetails);
-        } else {
-            reqDetails.first = false;
-            Object.assign(reqDetails.request, request);
-        }
         if ( request.event === 'redirect' ) {
             if ( reIsNetwork.test(request.redirectUrl) === false ) {
                 recordOutcome(tabId, request);
-                session.networkRequestDB.delete(requestId);
             }
             continue;
         }
         if ( request.event === 'error' ) {
             recordOutcome(tabId, request);
-            session.networkRequestDB.delete(requestId);
             continue;
         }
         if ( request.event === 'success' ) {
@@ -224,7 +211,6 @@ async function processNetworkRequestJournal() {
                 request.event = 'error';
                 recordOutcome(tabId, request);
             }
-            session.networkRequestDB.delete(requestId);
             continue;
         }
     }
@@ -232,9 +218,7 @@ async function processNetworkRequestJournal() {
     for ( const tabId of tabIds ) {
         updateTabBadge(tabId);
     }
-    if ( tabIds.size !== 0 ) {
-        saveSessionData();
-    }
+    saveSessionData();
 }
 
 function queueNetworkRequest(details, event) {

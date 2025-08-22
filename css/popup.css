@@ -1,13 +1,28 @@
+@charset "UTF-8";
+
+@font-face {
+    font-family: Inter;
+    font-style: normal;
+    font-weight: normal;
+    src: url('fonts/Inter/Inter-Regular.woff2') format('woff2');
+}
+@font-face {
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 600;
+    src: url('fonts/Inter/Inter-SemiBold.woff2') format('woff2');
+}
+
 :root {
     --surface-0: white;
     --surface-1: rgb(240 240 242);
 }
 
 body {
-    background-color: var(--surface-0);
+    background-color: var(--surface-1);
     box-sizing: border-box;
-    font-size: 14px;
-    font-family: sans-serif;
+    font-size: 15px;
+    font-family: Inter;
     margin: 0;
     max-width: 540px;
     min-width: 300px;
@@ -18,12 +33,14 @@ body.loading {
 }
 
 h2 {
+    align-items: center;
     background: rgb(179 198 250 / 15%);
+    display: flex;
     font-size: 100%;
     font-weight: normal;
+    justify-content: center;
     margin: 0;
-    padding: 0.5em;
-    text-align: center;
+    min-height: 3em;
 }
 h2 > span:first-of-type {
     opacity: 60%;
@@ -33,16 +50,17 @@ main {
 }
 
 main section#summary {
+    font-size: large;
     padding: 1em;
     text-align: center;
 }
 
 main section.outcome {
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
 main section.outcome h3 {
-    border-top: 1px solid var(--surface-0);
+    border-top: 1px solid var(--surface-1);
     font-size: 1em;
     font-weight: 600;
     margin: 0;

@@ -41,7 +41,7 @@ function renderPanel(data = {}) {
     }
     const { allowed, blocked, stealth } = data;
     const rowTemplate = qs$('template#domainRow');
-    const thirdParties = new Set();
+    const allDomains = new Set();
     const allowedSorted = Array.from(allowed.domains).toSorted();
     const allowedSection = qs$('.outcome.allowed .domains');
     for ( const [ domain, count ] of allowedSorted ) {
@@ -49,8 +49,7 @@ function renderPanel(data = {}) {
         dom.text(qs$(row, '.domain'), punycode.toUnicode(domain));
         dom.text(qs$(row, '.count'), count);
         allowedSection.append(row);
-        if ( domain === tabDomain ) { continue; }
-        thirdParties.add(domain);
+        allDomains.add(domain);
     }
     const stealthSorted = Array.from(stealth.domains).toSorted();
     const stealthSection = qs$('.outcome.stealth .domains');
@@ -68,7 +67,7 @@ function renderPanel(data = {}) {
         dom.text(qs$(row, '.count'), count);
         blockedSection.append(row);
     }
-    dom.text('#summary > span', Number(thirdParties.size).toLocaleString());
+    dom.text('#summary > span', Number(allDomains.size).toLocaleString());
 }
 
 /******************************************************************************/

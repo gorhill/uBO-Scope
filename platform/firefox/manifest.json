@@ -39,6 +39,7 @@
   "manifest_version": 3,
   "name": "uBO Scope",
   "permissions": [
+    "activeTab",
     "storage",
     "webRequest"
   ],
