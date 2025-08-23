@@ -143,7 +143,7 @@ function outcomeDetailsAdd(outcomeDetails, hostname) {
 /******************************************************************************/
 
 function recordOutcome(tabId, request) {
-    const { type, url } = request;
+    const { type, url, frameId } = request;
     const tabDetails = session.tabIdToDetailsMap.get(tabId) ||
         structuredClone(TABDETAILS_ENTITY);
     if ( tabDetails.tabId === undefined ) {
@@ -151,18 +151,20 @@ function recordOutcome(tabId, request) {
         session.tabIdToDetailsMap.set(tabId, tabDetails);
     }
     const hostname = hostnameFromURI(url);
-    if ( type === 'main_frame' ) {
-        tabDetailsReset(tabDetails);
-        tabDetails.hostname = hostname;
-        tabDetails.domain = domainFromHostname(hostname);
-        outcomeDetailsAdd(tabDetails.allowed, hostname);
-        return true;
-    }
-    if ( tabDetails.hostname === '' && request.frameId === 0 ) {
-        const top = request.initiator || request.documentUrl;
-        if ( top ) {
-            tabDetails.hostname = hostnameFromURI(top);
-            tabDetails.domain = domainFromHostname(tabDetails.hostname);
+    if ( frameId === 0 ) {
+        if ( type === 'main_frame' ) {
+            tabDetailsReset(tabDetails);
+            tabDetails.hostname = hostname;
+            tabDetails.domain = domainFromHostname(hostname);
+            outcomeDetailsAdd(tabDetails.allowed, hostname);
+            return true;
+        }
+        if ( tabDetails.hostname === '' ) {
+            const top = request.initiator || request.documentUrl;
+            if ( top ) {
+                tabDetails.hostname = hostnameFromURI(top);
+                tabDetails.domain = domainFromHostname(tabDetails.hostname);
+            }
         }
     }
     switch ( request.event ) {

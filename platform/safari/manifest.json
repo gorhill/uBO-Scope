@@ -1,0 +1,42 @@
+{
+  "action": {
+    "default_icon": {
+      "16": "img/browsericons/logo16.png",
+      "32": "img/browsericons/logo32.png",
+      "64": "img/browsericons/logo64.png",
+      "128": "img/browsericons/logo128.png"
+    },
+    "default_title": "uBO Scope",
+    "default_popup": "popup.html"
+  },
+  "author": "Raymond Hill",
+  "background": {
+    "scripts": [ "/js/background.js" ],
+    "type": "module"
+  },
+  "browser_specific_settings": {
+    "safari": {
+      "strict_min_version": "18.5"
+    }
+  },
+  "description": "A tool which reports remote server connections",
+  "icons": {
+    "16": "img/browsericons/logo16.png",
+    "32": "img/browsericons/logo32.png",
+    "64": "img/browsericons/logo64.png",
+    "128": "img/browsericons/logo128.png"
+  },
+  "manifest_version": 3,
+  "name": "uBO Scope",
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "webRequest"
+  ],
+  "short_name": "uBO Scope",
+  "version": "1.0.1"
+}
