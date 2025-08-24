@@ -86,6 +86,9 @@ const currentTab = {};
         const response = deserialize(s);
         renderPanel(response);
     }).finally(( ) => {
+        dom.cl.toggle(dom.body, 'fitViewport',
+            dom.body.clientWidth < dom.html.clientWidth
+        );
         dom.cl.remove(dom.body, 'loading');
     });
 })();

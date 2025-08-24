@@ -30,6 +30,9 @@ jobs:
           tools/make-firefox.sh ${{ env.VERSION }}
           mv build/uBO-Scope.firefox.xpi \
             build/uBO-Scope_${{ env.VERSION }}.firefox.xpi
+          tools/make-safari.sh ${{ env.VERSION }}
+          mv build/uBO-Scope.safari.zip \
+            build/uBO-Scope_${{ env.VERSION }}.safari.zip
       - name: Create GitHub release
         id: create_release
         uses: softprops/action-gh-release@v2

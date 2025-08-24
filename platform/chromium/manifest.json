@@ -6,7 +6,7 @@
       "64": "img/browsericons/logo64.png",
       "128": "img/browsericons/logo128.png"
     },
-    "default_title": "uBO-Scope",
+    "default_title": "uBO Scope",
     "default_popup": "popup.html"
   },
   "author": "Raymond Hill",

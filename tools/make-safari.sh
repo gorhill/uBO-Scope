@@ -2,30 +2,15 @@
 #
 # This script assumes a linux environment
 
-echo "*** uBO-Scope.safari: Creating web store package"
-echo "*** uBO-Scope.safari: Copying files"
+echo "*** uBO-Scope.safari: start"
 
-DES=build/uBO-Scope.safari
-rm -rf $DES
-mkdir -p $DES
-
-cp -R assets                       $DES/
-cp -R css                          $DES/
-cp -R img                          $DES/
-cp -R js                           $DES/
-cp *.html                          $DES/
-cp platform/safari/manifest.json   $DES/
-cp LICENSE.txt                     $DES/
-cp README.md                       $DES/
-
-mkdir -p $DES/js/lib
-cp node_modules/punycode/punycode.es6.js $DES/js/lib/
+./tools/make-package.sh "uBO-Scope.safari"
 
 if [ -n "$1" ]; then
-    echo "*** uBO-Scope.safari: Creating package..."
     pushd $(dirname $DES) > /dev/null
     zip uBO-Scope.safari.zip -qr $(basename $DES)/*
     popd > /dev/null
+    echo "*** uBO-Scope.safari: created ZIP package"
 fi
 
-echo "*** uBO-Scope.safari: Package done."
+echo "*** uBO-Scope.safari: done"

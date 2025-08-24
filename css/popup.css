@@ -23,7 +23,6 @@
     --registry-row-opacity: 0.05;
 }
 
-
 @media (prefers-color-scheme: dark) {
     :root {
         --surface-0: black;
@@ -43,9 +42,14 @@ body {
     font-size: 15px;
     font-family: Inter;
     margin: 0;
-    max-width: 540px;
-    min-width: 300px;
+    max-width: 380px;
+    min-width: 320px;
     padding: 0;
+    width: max-content;
+}
+body.fitViewport {
+    max-width: 100vw;
+    min-width: 100vw;
 }
 body.loading {
     visibility: hidden;
@@ -84,6 +88,7 @@ main section.outcome h3 {
     font-weight: 600;
     margin: 0;
     padding: 2px 0.5em;
+    text-align: center;
 }
 
 main section.outcome:is(.allowed) h3 {
@@ -101,7 +106,7 @@ main section.outcome:has(.domains:empty) {
 main section.outcome .row {
     column-gap: 0.25em;
     display: flex;
-    white-space: nowrap;
+    flex-wrap: nowrap;
 }
 
 main section.outcome .row:nth-of-type(2n+2) {
@@ -124,9 +129,8 @@ main section.outcome:is(.stealth,.blocked) .domains .row .badge {
 
 main section.outcome .domains .row .domain {
     flex-grow: 1;
-    overflow-x: auto;
     text-align: right;
-    white-space: nowrap;
+    word-break: break-all;
 }
 
 main section.outcome .domains .row .count {
