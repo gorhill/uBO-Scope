@@ -2,7 +2,7 @@
 
 A simple extension which primary purpose is to reveal all the connections -- attempted or successful -- to remote servers.
 
-**Important:** The badge count on the toolbar icon reports **the number of distinct third-party remote servers for which there was a connection**. Therefore a lower count is more desireable than a higher one.
+**Important:** The badge count on the toolbar icon reports **the number of distinct third-party remote servers for which there was a connection**. Therefore a lower count is more desirable than a higher one.
 
 Keep in mind that not all third party remote servers are necessarily to be avoided, though the number of legitimate third parties are usually low count, typically CDNs.
 
