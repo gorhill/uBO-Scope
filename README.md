@@ -1,3 +1,9 @@
+## uBO Scope
+
+| Browser | Install from ... | Browser | Install from ... |
+| --- | --- | --- | --- |
+| <img src="https://github.com/user-attachments/assets/d5033882-0c94-424f-9e8b-e00ed832acf7" alt="Get uBO Lite for Chromium"> | <a href="https://chromewebstore.google.com/detail/ubo-scope/bbdpgcaljkaaigfcomhidmneffjjjfgp">Chrome Web Store</a> | <img src="https://github.com/user-attachments/assets/8a33b8ba-57ee-4a54-a83c-7d21f9b2dafb" alt="Get uBlock Origin Lite for Firefox"> | <a href="https://addons.mozilla.org/firefox/addon/ubo-scope/">Firefox Add-ons</a> |
+
 ## Purpose
 
 A simple extension which primary purpose is to reveal all the connections -- attempted or successful -- to remote servers.
