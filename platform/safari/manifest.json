@@ -27,7 +27,7 @@
     "128": "img/browsericons/logo128.png"
   },
   "manifest_version": 3,
-  "name": "uBO Scope",
+  "name": "uBlock Origin Scope",
   "host_permissions": [
     "https://*/*",
     "http://*/*"

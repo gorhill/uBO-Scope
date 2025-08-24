@@ -4,9 +4,10 @@
 
 echo "*** uBO-Scope.safari: start"
 
-./tools/make-package.sh "uBO-Scope.safari"
+./tools/make-package.sh "safari" "$1"
 
 if [ -n "$1" ]; then
+    DES=build/uBO-Scope.safari
     pushd $(dirname $DES) > /dev/null
     zip uBO-Scope.safari.zip -qr $(basename $DES)/*
     popd > /dev/null

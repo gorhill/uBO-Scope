@@ -46,3 +46,4 @@ jobs:
           files: |
             build/uBO-Scope_${{ env.VERSION }}.chromium.zip
             build/uBO-Scope_${{ env.VERSION }}.firefox.xpi
+            build/uBO-Scope_${{ env.VERSION }}.safari.xpi

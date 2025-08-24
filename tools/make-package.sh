@@ -3,27 +3,36 @@
 # This script assumes a linux environment
 
 if [ -z "$1" ]; then
-    echo "*** Error: need destination directory"
+    echo "*** Error: need platform name"
     exit 1
 fi
 
-DES=build/"$1"
+PLATFORM="$1"
+DES=build/uBO-Scope."$PLATFORM"
 
 echo "*** uBO-Scope: creating extension in $DES"
 
-rm -rf $DES
-mkdir -p $DES
+rm -rf "$DES"
+mkdir -p "$DES"
 
 echo "*** uBO-Scope: copying files"
 
-cp -R assets                       $DES/
-cp -R css                          $DES/
-cp -R img                          $DES/
-cp -R js                           $DES/
-cp *.html                          $DES/
-cp platform/chromium/manifest.json $DES/
-cp LICENSE.txt                     $DES/
-cp README.md                       $DES/
+cp -R assets                       "$DES"/
+cp -R css                          "$DES"/
+cp -R img                          "$DES"/
+cp -R js                           "$DES"/
+cp ./*.html                        "$DES"/
+cp platform/"$PLATFORM"/manifest.json "$DES"/
+cp LICENSE.txt                     "$DES"/
+cp README.md                       "$DES"/
 
-mkdir -p $DES/js/lib
-cp node_modules/punycode/punycode.es6.js $DES/js/lib/
+mkdir -p "$DES"/js/lib
+cp node_modules/punycode/punycode.es6.js "$DES"/js/lib/
+
+# Version provided as argument
+if [ -n "$2" ]; then
+    echo "*** uBO-Scope: setting version to $2 in manifest.json"
+    tmp=$(mktemp)
+    jq --arg a "$2" '.version = $a' "$DES/manifest.json" > "$tmp" && \
+        mv "$tmp" "$DES/manifest.json"
+fi
