@@ -6,7 +6,7 @@
 
 ## Purpose
 
-A simple extension which primary purpose is to reveal all the connections -- attempted or successful -- to remote servers.
+A simple extension which primary purpose is to passively observe and reveal all the connections -- attempted or successful -- to remote servers.
 
 **Important:** The badge count on the toolbar icon reports **the number of distinct third-party remote servers for which there was a connection**. Therefore a lower count is more desirable than a higher one.
 
