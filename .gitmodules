@@ -1,0 +1,3 @@
+[submodule "publish-extension"]
+	path = publish-extension
+	url = https://github.com/gorhill/publish-extension.git
