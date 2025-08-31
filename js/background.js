@@ -94,7 +94,11 @@ async function loadPublicSuffixList() {
 const urlParser = new URL('about:blank');
 
 function hostnameFromURI(url) {
-    urlParser.href = url;
+    try {
+        urlParser.href = url;
+    } catch {
+        return '';
+    }
     return urlParser.hostname || '';
 }
 
