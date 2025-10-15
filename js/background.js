@@ -296,17 +296,19 @@ browser.tabs.onRemoved.addListener(async tabId => {
     saveSessionDataDebounced();
 });
 
-browser.webNavigation.onBeforeNavigate.addListener(details => {
+browser.webNavigation.onBeforeNavigate.addListener(async details => {
     if ( details.tabId === -1 ) { return; }
     if ( details.parentFrameId !== -1 ) { return; }
     if ( details.frameId !== 0 ) { return; }
+    await appIsReady;
     session.tabidToHostname.set(details.tabId, hostnameFromURI(details.url));
 });
 
-browser.webNavigation.onCommitted.addListener(details => {
+browser.webNavigation.onCommitted.addListener(async details => {
     if ( details.tabId === -1 ) { return; }
     if ( details.parentFrameId !== -1 ) { return; }
     if ( details.frameId !== 0 ) { return; }
+    await appIsReady;
     updateTabBadge(details.tabId);
 });
 
