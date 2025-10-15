@@ -42,10 +42,8 @@ body {
     font-size: 15px;
     font-family: Inter;
     margin: 0;
-    max-width: 380px;
-    min-width: 320px;
     padding: 0;
-    width: max-content;
+    width: 360px;
 }
 body.fitViewport {
     max-width: 100vw;
@@ -78,11 +76,11 @@ main section#summary {
     text-align: center;
 }
 
-main section.outcome {
+main section[data-outcome] {
     line-height: 1.6;
 }
 
-main section.outcome h3 {
+main section[data-outcome] h3 {
     border-top: 1px solid var(--surface-1);
     font-size: 1em;
     font-weight: 600;
@@ -91,49 +89,91 @@ main section.outcome h3 {
     text-align: center;
 }
 
-main section.outcome:is(.allowed) h3 {
+main section[data-outcome="allowed"] h3 {
     background-color: rgba(0 255 0 / var(--section-header-opacity));
 }
 
-main section.outcome:is(.stealth,.blocked) h3 {
+main section:is([data-outcome="stealth"],[data-outcome="blocked"]) h3 {
     background-color: rgba(255 0 0 / var(--section-header-opacity));
 }
 
-main section.outcome:has(.domains:empty) {
+main section[data-outcome]:has(.domains:empty) {
     display: none;
 }
 
-main section.outcome .row {
+main section[data-outcome] [data-domain] {
     column-gap: 0.25em;
     display: flex;
     flex-wrap: nowrap;
 }
 
-main section.outcome .row:nth-of-type(2n+2) {
+main section[data-outcome] [data-domain]:nth-of-type(2n+2) {
     background-color: rgba(128 128 128 / var(--registry-row-opacity));
 }
 
-main section.outcome .domains .row .badge {
+main section[data-outcome] [data-domain] .badge {
     flex-shrink: 0;
     padding-inline-end: 2px;
     width: 0.5em;
 }
 
-main section.outcome:is(.allowed) .domains .row .badge {
+main section[data-outcome="allowed"] [data-domain] .badge {
     background-color: rgba(0 255 0 / var(--section-badge-opacity));
 }
 
-main section.outcome:is(.stealth,.blocked) .domains .row .badge {
+main section:is([data-outcome="stealth"],[data-outcome="blocked"]) [data-domain] .badge {
     background-color: rgba(255 0 0 / var(--section-badge-opacity));
 }
 
-main section.outcome .domains .row .domain {
+main section[data-outcome] [data-domain] .domain {
     flex-grow: 1;
     text-align: right;
     word-break: break-all;
 }
 
-main section.outcome .domains .row .count {
+main section[data-outcome] [data-domain] .count {
     width: 4ch;
     text-align: right;
+}
+
+main section[data-outcome] [data-domain][data-expanded="0"] + .urls {
+    display: none;
+}
+
+main section[data-outcome] .expander {
+    white-space: nowrap;
+}
+
+main section[data-outcome] [data-expanded="0"] .expander::after {
+    content: '+\2002\2002';
+}
+
+main section[data-outcome] [data-expanded="1"] .expander::after {
+    content: '\2212\2002\2002';
+}
+
+.urls {
+    border-bottom: 1px solid gray;
+    font-size: smaller;
+    list-style: none;
+    margin-block: 0;
+    overflow-x: auto;
+    padding-inline-start: 0.25em;
+    white-space: pre;
+}
+
+.urls .type {
+    color: gray;
+    display: inline-block;
+    text-align: left;
+    width: 4ch;
+}
+
+.urls a.url {
+    color: inherit;
+    text-decoration: none;
+}
+
+.urls a.url .domain {
+    color: gray;
 }

@@ -29,6 +29,7 @@ import {
     deserialize,
     serialize,
 } from './lib/s14e-serializer.js';
+import { hostnameFromURI } from './utils.js';
 import { default as psl } from './lib/publicsuffixlist.js';
 import { default as punycode } from './lib/punycode.es6.js';
 
@@ -36,21 +37,12 @@ import { default as punycode } from './lib/punycode.es6.js';
 
 const manifest = runtime.getManifest();
 
-const TABDETAILS_ENTITY = {
+const TABDETAILS_TEMPLATE = {
     domain: '',
     hostname: '',
-    allowed: {
-        domains: new Map(),
-        hostnames: new Map(),
-    },
-    stealth: {
-        domains: new Map(),
-        hostnames: new Map(),
-    },
-    blocked: {
-        domains: new Map(),
-        hostnames: new Map(),
-    },
+    allowed: new Map(),
+    stealth: new Map(),
+    blocked: new Map(),
 };
 
 const reIsNetwork = /^(?:https?|wss?):/;
@@ -58,7 +50,10 @@ const reIsNetwork = /^(?:https?|wss?):/;
 /******************************************************************************/
 
 const session = {
-    tabIdToDetailsMap: new Map(),
+    tabidToHostname: new Map(),
+    tabidToDetails: new Map(),
+    mruTabDetails: [],
+    
 };
 
 async function loadSessionData() {
@@ -68,8 +63,16 @@ async function loadSessionData() {
 }
 
 async function saveSessionData() {
-    const s = serialize(session);
+    const s = serialize(session, { compress: true });
     await sessionWrite('sessionData', s);
+}
+
+async function saveSessionDataDebounced() {
+    if ( saveSessionDataDebounced.timer !== undefined ) { return; }
+    saveSessionDataDebounced.timer = setTimeout(( ) => {
+        saveSessionDataDebounced.timer = undefined;
+        saveSessionData();
+    }, 10000);
 }
 
 /******************************************************************************/
@@ -86,34 +89,23 @@ async function loadPublicSuffixList() {
     const content = await response.text();
     psl.parse(content, punycode.toASCII);
     const selfie = psl.toSelfie();
-    sessionWrite('publicSuffixList', serialize(selfie));
+    sessionWrite('publicSuffixList', serialize(selfie, { compress: true }));
 }
 
 /******************************************************************************/
 
-const urlParser = new URL('about:blank');
-
-function hostnameFromURI(url) {
-    try {
-        urlParser.href = url;
-    } catch {
-        return '';
-    }
-    return urlParser.hostname || '';
-}
-
 function domainFromHostname(hostname) {
-    return psl.getDomain(hostname) ||
-           psl.getPublicSuffix(hostname);
+    return psl.getDomain(hostname) || hostname;
 }
 
 /******************************************************************************/
 
 function updateTabBadge(tabId) {
     if ( tabId === -1 ) { return; }
-    const tabDetails = session.tabIdToDetailsMap.get(tabId);
+    const hostname = session.tabidToHostname.get(tabId);
+    const tabDetails = session.tabidToDetails.get(`${tabId}/${hostname}`);
     if ( tabDetails === undefined ) { return; }
-    const count = tabDetails.allowed.domains.size;
+    const count = tabDetails.allowed.size;
     browser.action.setBadgeText({
         tabId,
         text: count !== 0 ? `${count}` : ''
@@ -126,21 +118,22 @@ function updateTabBadge(tabId) {
 function tabDetailsReset(tabDetails) {
     tabDetails.domain = '';
     tabDetails.hostname = '';
-    tabDetails.allowed.domains.clear();
-    tabDetails.allowed.hostnames.clear();
-    tabDetails.stealth.domains.clear();
-    tabDetails.stealth.hostnames.clear();
-    tabDetails.blocked.domains.clear();
-    tabDetails.blocked.hostnames.clear();
+    tabDetails.allowed.clear();
+    tabDetails.stealth.clear();
+    tabDetails.blocked.clear();
 }
 
-function outcomeDetailsAdd(outcomeDetails, hostname) {
-    let count = outcomeDetails.hostnames.get(hostname) || 0;
-    outcomeDetails.hostnames.set(hostname, count+1);
+function outcomeDetailsAdd(outcomeDetails, hostname, url, type) {
     const domain = domainFromHostname(hostname);
-    const r = outcomeDetails.domains.has(domain);
-    count = outcomeDetails.domains.get(domain) || 0;
-    outcomeDetails.domains.set(domain, count+1);
+    const r = outcomeDetails.has(domain);
+    const requests = outcomeDetails.get(domain) || (new Set());
+    if ( requests.size === 0 ) {
+        outcomeDetails.set(domain, requests);
+    }
+    const request = `${url} ${type}`;
+    if ( requests.has(request) ) { return false; }
+    if ( requests.size >= 101 ) { return false; }
+    requests.add(request);
     return r;
 }
 
@@ -148,11 +141,22 @@ function outcomeDetailsAdd(outcomeDetails, hostname) {
 
 function recordOutcome(tabId, request) {
     const { type, url, frameId } = request;
-    const tabDetails = session.tabIdToDetailsMap.get(tabId) ||
-        structuredClone(TABDETAILS_ENTITY);
+    const tabHostname = session.tabidToHostname.get(tabId);
+    const tabDetailsKey = `${tabId}/${tabHostname}`;
+    const tabDetails = session.tabidToDetails.get(tabDetailsKey) ||
+        structuredClone(TABDETAILS_TEMPLATE);
+    const pos = session.mruTabDetails.lastIndexOf(tabDetailsKey);
+    if ( pos !== -1 ) {
+        session.mruTabDetails.splice(pos, 1);
+    }
+    session.mruTabDetails.unshift(tabDetailsKey);
+    while ( session.mruTabDetails.length > 100 ) {
+        const key = session.mruTabDetails.pop();
+        session.tabidToDetails.delete(key);
+    }
     if ( tabDetails.tabId === undefined ) {
         tabDetails.tabId = tabId;
-        session.tabIdToDetailsMap.set(tabId, tabDetails);
+        session.tabidToDetails.set(tabDetailsKey, tabDetails);
     }
     const hostname = hostnameFromURI(url);
     if ( frameId === 0 ) {
@@ -160,7 +164,8 @@ function recordOutcome(tabId, request) {
             tabDetailsReset(tabDetails);
             tabDetails.hostname = hostname;
             tabDetails.domain = domainFromHostname(hostname);
-            outcomeDetailsAdd(tabDetails.allowed, hostname);
+            session.tabidToHostname.set(tabId, hostname);
+            outcomeDetailsAdd(tabDetails.allowed, hostname, url, type);
             return true;
         }
         if ( tabDetails.hostname === '' ) {
@@ -173,13 +178,13 @@ function recordOutcome(tabId, request) {
     }
     switch ( request.event ) {
     case 'redirect':
-        outcomeDetailsAdd(tabDetails.stealth, hostname);
+        outcomeDetailsAdd(tabDetails.stealth, hostname, url, type);
         break;
     case 'error':
-        outcomeDetailsAdd(tabDetails.blocked, hostname);
+        outcomeDetailsAdd(tabDetails.blocked, hostname, url, type);
         break;
     case 'success':
-        if ( outcomeDetailsAdd(tabDetails.allowed, hostname) ) { return true; }
+        if ( outcomeDetailsAdd(tabDetails.allowed, hostname, url, type) ) { return true; }
         return true;
     default:
         break;
@@ -190,7 +195,6 @@ function recordOutcome(tabId, request) {
 /******************************************************************************/
 
 const networkRequestJournal = [];
-let networkRequestJournalTimer;
 
 async function processNetworkRequestJournal() {
     await appIsReady;
@@ -224,15 +228,15 @@ async function processNetworkRequestJournal() {
     for ( const tabId of tabIds ) {
         updateTabBadge(tabId);
     }
-    saveSessionData();
+    saveSessionDataDebounced();
 }
 
 function queueNetworkRequest(details, event) {
     details.event = event;
     networkRequestJournal.push(details);
-    if ( networkRequestJournalTimer !== undefined ) { return; }
-    networkRequestJournalTimer = setTimeout(( ) => {
-        networkRequestJournalTimer = undefined;
+    if ( queueNetworkRequest.timer !== undefined ) { return; }
+    queueNetworkRequest.timer = setTimeout(( ) => {
+        queueNetworkRequest.timer = undefined;
         processNetworkRequestJournal();
     }, 1000);
 }
@@ -255,9 +259,10 @@ runtime.onMessage.addListener((msg, sender, callback) => {
     let response;
     switch ( msg?.what ) {
     case 'getTabData': {
-        const { tabId } = msg;
+        const { tabId, hostname } = msg;
+        const target = `${tabId}/${hostname}`;
         response = appIsReady.then(( ) => {
-            const tabDetails = session.tabIdToDetailsMap.get(tabId);
+            const tabDetails = session.tabidToDetails.get(target);
             callback(serialize(tabDetails));
         });
         break;
@@ -277,10 +282,32 @@ runtime.onMessage.addListener((msg, sender, callback) => {
 
 browser.tabs.onRemoved.addListener(async tabId => {
     await appIsReady;
-    const tabDetails = session.tabIdToDetailsMap.get(tabId);
-    if ( tabDetails === undefined ) { return; }
-    session.tabIdToDetailsMap.delete(tabId);
-    saveSessionData();
+    const target = `${tabId}/`;
+    for ( const key of session.tabidToDetails.keys() ) {
+        if ( key.startsWith(target) === false ) { continue; }
+        session.tabidToDetails.delete(key);
+    }
+    let i = session.mruTabDetails.length;
+    while ( i-- ) {
+        if ( session.mruTabDetails[i].startsWith(target) === false ) { continue; }
+        session.mruTabDetails.splice(i, 1);
+    }
+    session.tabidToHostname.delete(tabId);
+    saveSessionDataDebounced();
+});
+
+browser.webNavigation.onBeforeNavigate.addListener(details => {
+    if ( details.tabId === -1 ) { return; }
+    if ( details.parentFrameId !== -1 ) { return; }
+    if ( details.frameId !== 0 ) { return; }
+    session.tabidToHostname.set(details.tabId, hostnameFromURI(details.url));
+});
+
+browser.webNavigation.onCommitted.addListener(details => {
+    if ( details.tabId === -1 ) { return; }
+    if ( details.parentFrameId !== -1 ) { return; }
+    if ( details.frameId !== 0 ) { return; }
+    updateTabBadge(details.tabId);
 });
 
 /******************************************************************************/

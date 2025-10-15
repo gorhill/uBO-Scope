@@ -20,59 +20,176 @@
 */
 
 //import { default as punycode } from './lib/punycode.es6.js';
-import { browser, sendMessage, } from './ext.js';
+import {
+    browser,
+    sendMessage,
+    sessionRead,
+    sessionWrite,
+} from './ext.js';
+import { deserialize, serialize } from './lib/s14e-serializer.js';
 import { dom, qs$ } from './dom.js';
-import { deserialize } from './lib/s14e-serializer.js';
+import { hostnameFromURI } from './utils.js';
 import { default as punycode } from './lib/punycode.es6.js';
 
 /******************************************************************************/
 
-function renderPanel(data = {}) {
-    const { hostname: tabHostname } = data;
+const prettyTypes = {
+    fetch: 'xhr',
+    image: 'img',
+    main_frame: 'doc',
+    script: 'js',
+    stylesheet: 'css',
+    sub_frame: 'frm',
+    xmlhttprequest: 'xhr',
+};
+
+const currentTab = {};
+let tabData = {};
+
+const expandableRealms = new Set();
+const expandedRealms = new Set();
+
+/******************************************************************************/
+
+function textFromCount(count) {
+    return count < 101 ? `${count}` : '>100';
+}
+
+/******************************************************************************/
+
+function parseRequest(request) {
+    const pos = request.lastIndexOf(' ');
+    const type = request.slice(pos+1);
+    return {
+        type: prettyTypes[type] || type,
+        url: request.slice(0, pos),
+    };
+}
+
+/******************************************************************************/
+
+function sortRequests(requests) {
+    return Array.from(requests).toSorted((a, b) => {
+        if ( a.type !== b.type ) {
+            if ( a.type === 'doc' ) { return -1; }
+            if ( b.type === 'doc' ) { return 1; }
+            return a.type.localeCompare(b.type);
+        }
+        const hna = hostnameFromURI(a.url);
+        const hnb = hostnameFromURI(b.url);
+        const diff = hna.length - hnb.length;
+        if ( diff !== 0 ) { return diff; }
+        return hna.localeCompare(hnb);
+    });
+}
+
+/******************************************************************************/
+
+function nodeFromTemplate(templateId, nodeSelector) {
+    const template = qs$(`template#${templateId}`);
+    const fragment = template.content.cloneNode(true);
+    const node = nodeSelector !== undefined
+        ? qs$(fragment, nodeSelector)
+        : fragment.firstElementChild;
+    return node;
+}
+
+/******************************************************************************/
+
+function renderPanel() {
+    const { hostname: tabHostname } = tabData;
     if ( Boolean(tabHostname) === false ) { return; }
-    const { domain: tabDomain } = data;
-    dom.text('#tabHostname > span:last-of-type',
-        punycode.toUnicode(tabDomain)
-    );
+    const { domain: tabDomain } = tabData;
+    dom.text('#tabHostname > span:last-of-type', punycode.toUnicode(tabDomain));
     if ( tabHostname !== tabDomain ) {
         dom.text('#tabHostname > span:first-of-type',
             punycode.toUnicode(tabHostname.slice(0, -tabDomain.length))
         );
     }
-    const { allowed, blocked, stealth } = data;
-    const rowTemplate = qs$('template#domainRow');
-    const allDomains = new Set();
-    const allowedSorted = Array.from(allowed.domains).toSorted();
-    const allowedSection = qs$('.outcome.allowed .domains');
-    for ( const [ domain, count ] of allowedSorted ) {
-        const row = rowTemplate.content.cloneNode(true);
+    renderPanelSection(tabDomain, tabData.allowed, 'allowed');
+    renderPanelSection(tabDomain, tabData.stealth, 'stealth');
+    renderPanelSection(tabDomain, tabData.blocked, 'blocked');
+    dom.text('#summary > span', Number(tabData.allowed.size).toLocaleString());
+}
+
+function renderPanelSection(topDomain, domainMap, outcome) {
+    const sorted = Array.from(domainMap).toSorted((a, b) => {
+        const da = a[0];
+        const db = b[0];
+        if ( da !== db ) {
+            if ( da === topDomain ) { return -1; }
+            if ( db === topDomain ) { return 1; }
+        }
+        return da.localeCompare(db);
+    });
+    const section = qs$(`[data-outcome="${outcome}"] .domains`);
+    for ( const [ domain, urls ] of sorted ) {
+        const row = nodeFromTemplate('domainRow', '[data-domain]');
+        row.dataset.domain = domain;
         dom.text(qs$(row, '.domain'), punycode.toUnicode(domain));
-        dom.text(qs$(row, '.count'), count);
-        allowedSection.append(row);
-        allDomains.add(domain);
+        dom.text(qs$(row, '.count'), textFromCount(urls.size));
+        section.append(row);
     }
-    const stealthSorted = Array.from(stealth.domains).toSorted();
-    const stealthSection = qs$('.outcome.stealth .domains');
-    for ( const [ domain, count ] of stealthSorted ) {
-        const row = rowTemplate.content.cloneNode(true);
-        dom.text(qs$(row, '.domain'), punycode.toUnicode(domain));
-        dom.text(qs$(row, '.count'), count);
-        stealthSection.append(row);
-    }
-    const blockededSorted = Array.from(blocked.domains).toSorted();
-    const blockedSection = qs$('.outcome.blocked .domains');
-    for ( const [ domain, count ] of blockededSorted ) {
-        const row = rowTemplate.content.cloneNode(true);
-        dom.text(qs$(row, '.domain'), punycode.toUnicode(domain));
-        dom.text(qs$(row, '.count'), count);
-        blockedSection.append(row);
-    }
-    dom.text('#summary > span', Number(allDomains.size).toLocaleString());
 }
 
 /******************************************************************************/
 
-const currentTab = {};
+function toggleExpand(expandKey, afterState, persist) {
+    const pos = expandKey.indexOf('/');
+    const outcome = expandKey.slice(0, pos);
+    const domain = expandKey.slice(pos+1);
+    const domainRow = qs$(`[data-outcome="${outcome}"] [data-domain="${domain}"]`);
+    if ( domainRow === null ) { return; }
+    const beforeState = domainRow.dataset.expanded = '1';
+    if ( afterState === beforeState ) { return; }
+    if ( expandableRealms.has(expandKey) === false ) {
+        const requests = tabData?.[outcome]?.get(domain);
+        if ( Boolean(requests) === false ) { return; }
+        const parsedRequests = Array.from(requests).map(a => parseRequest(a));
+        const sortedRequests = sortRequests(parsedRequests);
+        const div = nodeFromTemplate('urls', 'ul');
+        for ( const request of sortedRequests ) {
+            const row = renderURLRow(domain, request);
+            div.append(row);
+        }
+        domainRow.after(div);
+        expandableRealms.add(expandKey);
+    }
+    if ( afterState ) {
+        domainRow.dataset.expanded = '1';
+        expandedRealms.add(expandKey);
+    } else {
+        domainRow.dataset.expanded = '0';
+        expandedRealms.delete(expandKey);
+    }
+    if ( persist !== true ) { return; }
+    sessionWrite('popup.expandedRealms', serialize(expandedRealms));
+}
+
+function onToggleExpand(ev) {
+    const { target } = ev;
+    const row = target.closest('[data-domain]');
+    if ( row === null ) { return; }
+    const outcome = row.closest('[data-outcome]');
+    if ( outcome === null ) { return; }
+    const expandKey = `${outcome.dataset.outcome}/${row.dataset.domain}`;
+    toggleExpand(expandKey, row.dataset.expanded === '0', true);
+}
+
+/******************************************************************************/
+
+function renderURLRow(domain, { type, url }) {
+    const row = nodeFromTemplate('urlRow', 'li');
+    dom.text(qs$(row, '.type'), (prettyTypes[type] || type).slice(0, 4));
+    const parsedURL = new URL(url);
+    dom.attr(qs$(row, '.url'), 'href', url);
+    dom.text(qs$(row, '.subdomain'), parsedURL.hostname.slice(0, -domain.length));
+    dom.text(qs$(row, '.domain'), '*');
+    dom.text(qs$(row, '.path'), `${parsedURL.pathname}${parsedURL.search}`);
+    return row;
+}
+
+/******************************************************************************/
 
 (async ( ) => {
     const [ tab ] = await browser.tabs.query({ active: true, currentWindow: true });
@@ -82,13 +199,27 @@ const currentTab = {};
     sendMessage({
         what: 'getTabData',
         tabId: currentTab.id,
+        hostname: hostnameFromURI(tab.url),
     }).then(s => {
         const response = deserialize(s);
-        renderPanel(response);
+        if ( response ) {
+            tabData = response;
+        }
+        renderPanel();
+        return sessionRead('popup.expandedRealms');
+    }).then(s => {
+        if ( typeof s !== 'string' ) { return; }
+        const expanded = deserialize(s);
+        if ( expanded instanceof Set === false ) { return; }
+        for ( const key of expanded ) {
+            expandedRealms.add(key);
+            toggleExpand(key, true, false);
+        }
     }).finally(( ) => {
         dom.cl.toggle(dom.body, 'fitViewport',
-            dom.body.clientWidth < dom.html.clientWidth
+            Math.abs(dom.body.clientWidth - dom.html.clientWidth) > 16
         );
         dom.cl.remove(dom.body, 'loading');
+        dom.on('main', 'click', 'section .expander', onToggleExpand);
     });
 })();

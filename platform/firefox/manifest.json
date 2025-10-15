@@ -41,6 +41,7 @@
   "permissions": [
     "activeTab",
     "storage",
+    "webNavigation",
     "webRequest"
   ],
   "short_name": "uBO Scope",

@@ -15,22 +15,30 @@
     <section id="summary">
         domains connected: <span>?</span>
     </section>
-    <section class="outcome allowed">
+    <section data-outcome="allowed">
         <h3>not blocked</h3>
         <div class="domains"></div>
     </section>
-    <section class="outcome stealth">
+    <section data-outcome="stealth">
         <h3>stealth-blocked</h3>
         <div class="domains"></div>
     </section>
-    <section class="outcome blocked">
+    <section data-outcome="blocked">
         <h3>blocked</h3>
         <div class="domains"></div>
     </section>
 </main>
 
 <template id="domainRow">
-    <div class="row"><span class="domain">_</span><span class="count badge">_</span></div>
+    <div data-domain="" data-expanded="0"><span class="expander"></span><span class="domain"></span><span class="count badge"></span></div>
+</template>
+
+<template id="urls">
+    <ul class="urls"></ul>
+</template>
+
+<template id="urlRow">
+    <li><span class="type"></span><a href="" class="url" target="_blank"><span class="subdomain"></span><span class="domain"></span><span class="path"></span></a></li>
 </template>
 
 <script src="js/popup.js" type="module"></script>
