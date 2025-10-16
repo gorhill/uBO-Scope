@@ -14,11 +14,11 @@
    height="128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r"
-   sodipodi:docname="ubo-observatory.svg"
-   inkscape:export-filename="/home/rhill/permahome/workshop/uBO-Gauge/img/browsericons/logo128.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   sodipodi:docname="ubo-scope.svg"
+   inkscape:export-filename="browsericons/logo1024.png"
+   inkscape:export-xdpi="768"
+   inkscape:export-ydpi="768">
   <defs
      id="defs4">
     <linearGradient
@@ -79,16 +79,16 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6568542"
-     inkscape:cx="52.029479"
-     inkscape:cy="70.892403"
+     inkscape:cx="64.435106"
+     inkscape:cy="69.119688"
      inkscape:document-units="px"
-     inkscape:current-layer="layer5"
+     inkscape:current-layer="layer3"
      showgrid="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1028"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
-     inkscape:window-maximized="1"
+     inkscape:window-width="1280"
+     inkscape:window-height="1372"
+     inkscape:window-x="1280"
+     inkscape:window-y="40"
+     inkscape:window-maximized="0"
      fit-margin-top="5"
      fit-margin-left="5"
      fit-margin-right="5"
@@ -101,7 +101,9 @@
      borderlayer="false"
      inkscape:snap-global="true"
      inkscape:snap-grids="true"
-     inkscape:bbox-nodes="true">
+     inkscape:bbox-nodes="true"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
     <inkscape:grid
        type="xygrid"
        id="grid3059"
@@ -109,7 +111,12 @@
        visible="true"
        enabled="true"
        snapvisiblegridlinesonly="true"
-       dotted="false" />
+       dotted="false"
+       originx="0"
+       originy="0"
+       spacingy="1"
+       spacingx="1"
+       units="px" />
   </sodipodi:namedview>
   <metadata
      id="metadata7">
@@ -119,13 +126,12 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
         <dc:description>Use gray 50% for the &quot;off&quot; color</dc:description>
         <cc:license
-           rdf:resource="http://creativecommons.org/licenses/by-nc/3.0/" />
+           rdf:resource="http://creativecommons.org/licenses/by-nc/4.0/" />
       </cc:Work>
       <cc:License
-         rdf:about="http://creativecommons.org/licenses/by-nc/3.0/">
+         rdf:about="http://creativecommons.org/licenses/by-nc/4.0/">
         <cc:permits
            rdf:resource="http://creativecommons.org/ns#Reproduction" />
         <cc:permits
@@ -154,11 +160,11 @@
        inkscape:export-xdpi="26.719999"
        inkscape:export-ydpi="26.719999" />
     <g
-       style="fill:#800000;fill-opacity:1;stroke:#ffffff;stroke-width:1.60191178000000001;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline;stroke-linejoin:round"
-       transform="matrix(-0.6945203,0,0,0.56109687,375.02964,-247.42947)"
+       style="display:inline;fill:#800000;fill-opacity:1;stroke:#ffffff;stroke-width:1.60191;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       transform="matrix(-0.6945203,0,0,0.55232971,375.02964,-242.56337)"
        id="g6907">
       <path
-         style="fill:#800000;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:1.60191178;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         style="fill:#800000;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:1.60191;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 447.83376,669.09921 c -80.63119,-57.03115 -80.63119,-57.03115 -80.63119,-199.60903 34.55623,0 46.07497,0 80.63119,-28.51558 m 0,228.12461 c 80.6312,-57.03115 80.6312,-57.03115 80.6312,-199.60903 -34.55623,0 -46.07497,0 -80.6312,-28.51558"
          id="path6909"
          inkscape:connector-curvature="0"
