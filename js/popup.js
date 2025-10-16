@@ -22,6 +22,7 @@
 //import { default as punycode } from './lib/punycode.es6.js';
 import {
     browser,
+    runtime,
     sendMessage,
     sessionRead,
     sessionWrite,
@@ -190,6 +191,14 @@ function renderURLRow(domain, { type, url }) {
 }
 
 /******************************************************************************/
+
+const extensionOrigin = runtime.getURL('');
+
+if ( extensionOrigin.startsWith('safari-web-extension:') ) {
+    dom.cl.add(dom.html, 'safari');
+} else if ( extensionOrigin.startsWith('moz-extension:') ) {
+    dom.cl.add(dom.html, 'firefox');
+}
 
 (async ( ) => {
     const [ tab ] = await browser.tabs.query({ active: true, currentWindow: true });

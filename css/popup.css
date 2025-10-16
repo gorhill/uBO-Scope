@@ -43,6 +43,9 @@ body {
     font-family: Inter;
     margin: 0;
     padding: 0;
+    width: 340px;
+}
+html.safari body {
     width: max(340px, 100vw);
 }
 
