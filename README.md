@@ -39,7 +39,7 @@ Additionally these 'ad blocker test' webpages make unrealistic network requests 
 
 ---
 
-uBO Scope can also be a tool useful to filter list maintainers, especially on devices where access to browser tools are limited.
+uBO Scope can also be a tool useful to filter list maintainers, especially on devices where access to browser tools is limited.
 
 This is a first version, and I do not intend to update this extension often. However I will be adding features which are especially helpful to filter list maintainers. In the short term I plan to add access to more details regarding the observed network requests.
 
