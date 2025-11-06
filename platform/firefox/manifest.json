@@ -34,7 +34,10 @@
     "16": "img/browsericons/logo16.png",
     "32": "img/browsericons/logo32.png",
     "64": "img/browsericons/logo64.png",
-    "128": "img/browsericons/logo128.png"
+    "128": "img/browsericons/logo128.png",
+    "256": "img/browsericons/logo256.png",
+    "512": "img/browsericons/logo512.png",
+    "1024": "img/browsericons/logo1024.png"
   },
   "manifest_version": 3,
   "name": "uBlock Origin Scope",
