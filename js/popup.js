@@ -37,6 +37,7 @@ import { default as punycode } from './lib/punycode.es6.js';
 const prettyTypes = {
     fetch: 'xhr',
     image: 'img',
+    imageset: 'img',
     main_frame: 'doc',
     script: 'js',
     stylesheet: 'css',
