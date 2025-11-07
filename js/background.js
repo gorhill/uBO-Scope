@@ -145,6 +145,10 @@ function recordOutcome(tabId, request) {
     const tabDetailsKey = `${tabId}/${tabHostname}`;
     const tabDetails = session.tabidToDetails.get(tabDetailsKey) ||
         structuredClone(TABDETAILS_TEMPLATE);
+    if ( tabDetails.hostname === '' ) {
+        tabDetails.hostname = tabHostname;
+        tabDetails.domain = domainFromHostname(tabDetails.hostname);
+    }
     const pos = session.mruTabDetails.lastIndexOf(tabDetailsKey);
     if ( pos !== -1 ) {
         session.mruTabDetails.splice(pos, 1);
