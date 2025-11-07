@@ -1,4 +1,5 @@
-.PHONY: publish-chromium publish-edge
+.PHONY: publish-chromium publish-edge publish-firefox \
+	publish-safari-macos publish-safari-ios
 
 publish-chromium:
 	node publish-extension/publish-chromium.js \
@@ -25,3 +26,13 @@ publish-firefox:
 		ghasset=firefox \
 		storeid=uBO-Scope@raymondhill.net \
 		channel=listed
+
+# Usage: make publish-safari-macos version=?
+publish-safari-macos:
+	node dist/safari/publish-extension.js \
+		ghtag=$(version) macos
+
+# Usage: make publish-safari-ios version=?
+publish-safari-ios:
+	node dist/safari/publish-extension.js \
+		ghtag=$(version) ios
