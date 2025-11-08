@@ -49,7 +49,7 @@ html.safari body {
     width: max(340px, 100vw);
 }
 
-body.fitViewport {
+html:not(.safari) body.fitViewport {
     max-width: 100vw;
     min-width: 100vw;
 }
