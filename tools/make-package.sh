@@ -17,14 +17,9 @@ mkdir -p "$DES"
 
 echo "*** uBO-Scope: copying files"
 
-cp -R assets                       "$DES"/
-cp -R css                          "$DES"/
-cp -R img                          "$DES"/
-cp -R js                           "$DES"/
-cp ./*.html                        "$DES"/
-cp platform/"$PLATFORM"/manifest.json "$DES"/
+cp -R src/*                        "$DES"/
 cp LICENSE.txt                     "$DES"/
-cp README.md                       "$DES"/
+cp platform/"$PLATFORM"/manifest.json "$DES"/
 
 mkdir -p "$DES"/js/lib
 cp node_modules/punycode/punycode.es6.js "$DES"/js/lib/
