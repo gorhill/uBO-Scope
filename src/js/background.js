@@ -40,6 +40,7 @@ const manifest = runtime.getManifest();
 const TABDETAILS_TEMPLATE = {
     domain: '',
     hostname: '',
+    timing: 0,
     allowed: new Map(),
     stealth: new Map(),
     blocked: new Map(),
@@ -115,9 +116,29 @@ function updateTabBadge(tabId) {
 
 /******************************************************************************/
 
+function getTabDetails(tabId, hostname) {
+    let tabHostname = session.tabidToHostname.get(tabId);
+    if ( tabHostname === undefined ) {
+        if ( hostname === undefined ) { return; }
+        session.tabidToHostname.set(tabId, hostname);
+        tabHostname = hostname;
+    }
+    const tabDetailsKey = `${tabId}/${tabHostname}`;
+    const tabDetails = session.tabidToDetails.get(tabDetailsKey) ||
+        structuredClone(TABDETAILS_TEMPLATE);
+    if ( tabDetails.tabId === undefined ) {
+        tabDetails.tabId = tabId;
+        session.tabidToDetails.set(tabDetailsKey, tabDetails);
+        tabDetails.hostname = tabHostname;
+        tabDetails.domain = domainFromHostname(tabHostname);
+    }
+    return tabDetails;
+}
+
 function tabDetailsReset(tabDetails) {
     tabDetails.domain = '';
     tabDetails.hostname = '';
+    tabDetails.timing = 0;
     tabDetails.allowed.clear();
     tabDetails.stealth.clear();
     tabDetails.blocked.clear();
@@ -141,14 +162,9 @@ function outcomeDetailsAdd(outcomeDetails, hostname, url, type) {
 
 function recordOutcome(tabId, request) {
     const { type, url, frameId } = request;
-    const tabHostname = session.tabidToHostname.get(tabId);
-    const tabDetailsKey = `${tabId}/${tabHostname}`;
-    const tabDetails = session.tabidToDetails.get(tabDetailsKey) ||
-        structuredClone(TABDETAILS_TEMPLATE);
-    if ( tabDetails.hostname === '' ) {
-        tabDetails.hostname = tabHostname;
-        tabDetails.domain = domainFromHostname(tabDetails.hostname);
-    }
+    const tabDetails = getTabDetails(tabId);
+    if ( tabDetails === undefined ) { return; }
+    const tabDetailsKey = `${tabId}/${tabDetails.hostname}`;
     const pos = session.mruTabDetails.lastIndexOf(tabDetailsKey);
     if ( pos !== -1 ) {
         session.mruTabDetails.splice(pos, 1);
@@ -206,17 +222,16 @@ async function processNetworkRequestJournal() {
     for ( const request of networkRequestJournal ) {
         const { tabId } = request;
         if ( request.tabId === -1 ) { continue; }
-        if ( request.event === 'redirect' ) {
+        switch ( request.event ) {
+        case 'redirect':
             if ( reIsNetwork.test(request.redirectUrl) === false ) {
                 recordOutcome(tabId, request);
             }
-            continue;
-        }
-        if ( request.event === 'error' ) {
+            break;
+        case 'error':
             recordOutcome(tabId, request);
-            continue;
-        }
-        if ( request.event === 'success' ) {
+            break;
+        case 'success':
             if ( request.ip || request.statusCode !== 0 ) {
                 if ( recordOutcome(tabId, request) ) {
                     tabIds.add(request.tabId);
@@ -225,7 +240,16 @@ async function processNetworkRequestJournal() {
                 request.event = 'error';
                 recordOutcome(tabId, request);
             }
-            continue;
+            break;
+        case 'timing': {
+            const tabDetails = getTabDetails(tabId, request.hostname);
+            if ( tabDetails === undefined ) { break; }
+            if ( request.timing <= 0 ) { break; }
+            tabDetails.timing = request.timing;
+            break;
+        }
+        default:
+            break;
         }
     }
     networkRequestJournal.length = 0;
@@ -269,6 +293,27 @@ runtime.onMessage.addListener((msg, sender, callback) => {
             const tabDetails = session.tabidToDetails.get(target);
             callback(serialize(tabDetails));
         });
+        break;
+    }
+    case 'getPageTiming': {
+        response = 0;
+        const tabDetails = getTabDetails(msg.tabId, msg.hostname);
+        if ( tabDetails === undefined ) { break; }
+        response = tabDetails.timing;
+        break;
+    }
+    case 'setPageTiming': {
+        const tabId = sender?.tab?.id;
+        if ( Boolean(tabId) === false ) { break; }
+        networkRequestJournal.push({
+            event: 'timing',
+            tabId,
+            hostname: msg.hostname,
+            timing: msg.timing,
+        });
+        const tabDetails = getTabDetails(tabId, msg.hostname);
+        if ( tabDetails === undefined ) { break; }
+        tabDetails.timing = 0;
         break;
     }
     default:

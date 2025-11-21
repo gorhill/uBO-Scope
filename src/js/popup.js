@@ -103,6 +103,7 @@ function renderPanel() {
     if ( Boolean(tabHostname) === false ) { return; }
     const { domain: tabDomain } = tabData;
     dom.text('#tabHostname > span:last-of-type', punycode.toUnicode(tabDomain));
+    renderTiming();
     if ( tabHostname !== tabDomain ) {
         dom.text('#tabHostname > span:first-of-type',
             punycode.toUnicode(tabHostname.slice(0, -tabDomain.length))
@@ -111,7 +112,7 @@ function renderPanel() {
     renderPanelSection(tabDomain, tabData.allowed, 'allowed');
     renderPanelSection(tabDomain, tabData.stealth, 'stealth');
     renderPanelSection(tabDomain, tabData.blocked, 'blocked');
-    dom.text('#summary > span', Number(tabData.allowed.size).toLocaleString());
+    dom.text('#domainCount > span', Number(tabData.allowed.size).toLocaleString());
 }
 
 function renderPanelSection(topDomain, domainMap, outcome) {
@@ -132,6 +133,34 @@ function renderPanelSection(topDomain, domainMap, outcome) {
         dom.text(qs$(row, '.count'), textFromCount(urls.size));
         section.append(row);
     }
+}
+
+function renderTiming(timing) {
+    if ( typeof timing !== 'number' ) {
+        timing = tabData.timing;
+    } else {
+        tabData.timing = timing;
+    }
+    if ( timing === 0 ) {
+        return self.setTimeout(( ) => {
+            sendMessage({
+                what: 'getPageTiming',
+                tabId: tabData.tabId,
+                hostname: tabData.hostname,
+            }).then(renderTiming);
+        }, 1000);
+    }
+    const unit = timing > 1000 ? 'second' : 'millisecond' ;
+    if ( unit === 'second' ) {
+        timing /= 1000;
+    }
+    const intl = new Intl.NumberFormat(undefined, {
+        notation: 'compact',
+        maximumSignificantDigits: 3,
+        style: 'unit',
+        unit,
+    });
+    dom.text('#pageTiming > span', intl.format(timing));
 }
 
 /******************************************************************************/

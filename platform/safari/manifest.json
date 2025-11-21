@@ -19,6 +19,13 @@
       "strict_min_version": "18.5"
     }
   },
+  "content_scripts": [
+    {
+      "matches": [ "https://*/*", "http://*/*" ],
+      "js": [ "/js/page-timing.js" ],
+      "runAt": "document_end"
+    }
+  ],
   "description": "A tool which reports remote server connections",
   "icons": {
     "16": "img/browsericons/logo16.png",

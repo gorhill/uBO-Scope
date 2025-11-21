@@ -75,9 +75,19 @@ main {
 }
 
 main section#summary {
-    font-size: large;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
     padding: 1em;
     text-align: center;
+}
+
+main section#summary #domainCount {
+    font-size: large;
+}
+
+main section#summary #pageTiming {
+    font-size: small;
 }
 
 main section[data-outcome] {
