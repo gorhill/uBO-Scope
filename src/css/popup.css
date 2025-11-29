@@ -150,6 +150,10 @@ main section[data-outcome] [data-domain] .count {
     text-align: right;
 }
 
+main section[data-outcome] [data-domain] .count::after {
+    content: '\2002';
+}
+
 main section[data-outcome] [data-domain][data-expanded="0"] + .urls {
     display: none;
 }
@@ -159,11 +163,15 @@ main section[data-outcome] .expander {
 }
 
 main section[data-outcome] [data-expanded="0"] .expander::after {
-    content: '+\2002\2002';
+    content: '\2002+\2002';
 }
 
 main section[data-outcome] [data-expanded="1"] .expander::after {
-    content: '\2212\2002\2002';
+    content: '\2002\2212\2002';
+}
+
+html:not(.mobile) main section[data-outcome] [data-expanded] .expander:hover {
+    transform: scale(1.25);
 }
 
 .urls {
