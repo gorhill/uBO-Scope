@@ -363,11 +363,9 @@ browser.webNavigation.onCommitted.addListener(async details => {
 
 /******************************************************************************/
 
-const appIsReady = (( ) => {
-    return Promise.all([
-        loadPublicSuffixList(),
-        loadSessionData(),
-    ]);
-})();
+const appIsReady = Promise.all([
+    loadPublicSuffixList(),
+    loadSessionData(),
+]);
 
 /******************************************************************************/
