@@ -40,7 +40,6 @@ const manifest = runtime.getManifest();
 const TABDETAILS_TEMPLATE = {
     domain: '',
     hostname: '',
-    timing: 0,
     allowed: new Map(),
     stealth: new Map(),
     blocked: new Map(),
@@ -138,7 +137,6 @@ function getTabDetails(tabId, hostname) {
 function tabDetailsReset(tabDetails) {
     tabDetails.domain = '';
     tabDetails.hostname = '';
-    tabDetails.timing = 0;
     tabDetails.allowed.clear();
     tabDetails.stealth.clear();
     tabDetails.blocked.clear();
@@ -241,13 +239,6 @@ async function processNetworkRequestJournal() {
                 recordOutcome(tabId, request);
             }
             break;
-        case 'timing': {
-            const tabDetails = getTabDetails(tabId, request.hostname);
-            if ( tabDetails === undefined ) { break; }
-            if ( request.timing <= 0 ) { break; }
-            tabDetails.timing = request.timing;
-            break;
-        }
         default:
             break;
         }
@@ -296,24 +287,13 @@ runtime.onMessage.addListener((msg, sender, callback) => {
         break;
     }
     case 'getPageTiming': {
-        response = 0;
-        const tabDetails = getTabDetails(msg.tabId, msg.hostname);
-        if ( tabDetails === undefined ) { break; }
-        response = tabDetails.timing;
-        break;
-    }
-    case 'setPageTiming': {
-        const tabId = sender?.tab?.id;
-        if ( Boolean(tabId) === false ) { break; }
-        networkRequestJournal.push({
-            event: 'timing',
-            tabId,
-            hostname: msg.hostname,
-            timing: msg.timing,
+        response = browser.scripting.executeScript({
+            files: [ '/js/page-timing.js' ],
+            injectImmediately: true,
+            target: { tabId: msg.tabId }
+        }).then(result => {
+            callback(result);
         });
-        const tabDetails = getTabDetails(tabId, msg.hostname);
-        if ( tabDetails === undefined ) { break; }
-        tabDetails.timing = 0;
         break;
     }
     default:

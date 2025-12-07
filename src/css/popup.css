@@ -70,7 +70,10 @@ h2 {
 h2 > span:first-of-type {
     opacity: 60%;
 }
-
+a {
+    color: inherit !important;
+    text-decoration: none;
+}
 main {
 }
 
@@ -86,8 +89,26 @@ main section#summary #domainCount {
     font-size: large;
 }
 
+main section#summary #pageTiming > span {
+    align-items: center;
+    display: flex;
+    font-size: 13px;
+    gap: 1em;
+    justify-content: center;
+}
+
 main section#summary #pageTiming {
-    font-size: small;
+    display: flex;
+    flex-direction: column;
+}
+
+main section#summary #pageTiming > legend {
+    font-size: 11px;
+    opacity: 0.6;
+}
+
+main section#summary #pageTiming > span > span {
+    padding: 0 2px;
 }
 
 main section[data-outcome] {

@@ -13,8 +13,11 @@
 <h2 id="tabHostname"><span></span><span>NO DATA</span></h2>
 <main>
     <section id="summary">
+        <span id="pageTiming">
+            <span></span>
+            <legend>browser extensions &amp; cache influence <i>visible</i>, <i>interactive</i>, and <i>complete</i> &ndash; results may vary across page reloads</legend>
+        </span>
         <span id="domainCount">domains connected: <span>?</span></span>
-        <span id="pageTiming">page load time: <span>&hellip;</span></span>
     </section>
     <section data-outcome="allowed">
         <h3>not blocked</h3>
@@ -39,7 +42,23 @@
 </template>
 
 <template id="urlRow">
-    <li><span class="type"></span><a href="" class="url" target="_blank"><span class="subdomain"></span><span class="domain"></span><span class="path"></span></a></li>
+    <li><span class="type"></span><a href="#" class="url" target="_blank"><span class="subdomain"></span><span class="domain"></span><span class="path"></span></a></li>
+</template>
+
+<template id="frb">
+<span style="border:2px solid hsl(120 100% 40%);"><a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/readyState" target="_blank">loading</a><br><span>&hellip;</span></span>
+</template>
+
+<template id="fcp">
+<span style="border:4px solid hsl(120 100% 40%);"><a href="https://developer.mozilla.org/en-US/docs/Glossary/First_contentful_paint" target="_blank">visible</a><br><span>&hellip;</span></span>
+</template>
+
+<template id="dcl">
+<span style="border:2px solid hsl(120 100% 40%);"><a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/readyState" target="_blank">interactive</a><br><span>&hellip;</span></span>
+</template>
+
+<template id="l">
+<span style="border:2px solid hsl(120 100% 40%);"><a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/readyState" target="_blank">complete</a><br><span>&hellip;</span></span>
 </template>
 
 <script src="js/popup.js" type="module"></script>

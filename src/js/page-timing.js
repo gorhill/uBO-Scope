@@ -19,24 +19,14 @@
     Home: https://github.com/gorhill/uBO-Scope
 */
 
-function reportTiming() {
-    if ( document.readyState !== 'complete' ) { return; }
-    const entries = performance.getEntriesByType('navigation');
-    if ( entries.length === 0 ) { return; }
-    const entry = entries[0];
-    const timing = Math.round(entry.domComplete - entry.responseStart);
-    if ( timing > 0 ) {
-        chrome.runtime.sendMessage({
-            what: 'setPageTiming',
-            hostname: document.location.hostname,
-            timing: Math.round(timing),
-        });
-    }
-    document.removeEventListener('readystatechange', reportTiming);
-}
-
-if ( document.readyState === 'complete' ) {
-    reportTiming();
-} else {
-    document.addEventListener('readystatechange', reportTiming);
-}
+(( ) => {
+    const entries = performance.getEntries();
+    const nav = entries.find(a => a.entryType === 'navigation') || {};
+    const fcp = entries.find(a => a.name === 'first-contentful-paint') || {};
+    return {
+        frb: Math.round(nav.responseStart || 0),
+        dcl: Math.round(nav.domInteractive || 0),
+        l: Math.round(nav.domComplete || 0),
+        fcp: Math.round(fcp.startTime || 0),
+    };
+})();

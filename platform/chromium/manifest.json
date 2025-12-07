@@ -14,13 +14,6 @@
     "service_worker": "/js/background.js",
     "type": "module"
   },
-  "content_scripts": [
-    {
-      "matches": [ "https://*/*", "http://*/*" ],
-      "js": [ "/js/page-timing.js" ],
-      "runAt": "document_end"
-    }
-  ],
   "description": "A tool which reports remote server connections",
   "host_permissions": [
     "https://*/*",
@@ -42,6 +35,7 @@
   "name": "uBlock Origin Scope",
   "permissions": [
     "activeTab",
+    "scripting",
     "storage",
     "webNavigation",
     "webRequest"
