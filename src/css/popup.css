@@ -195,7 +195,7 @@ main section[data-outcome] [data-domain] .domain {
 }
 
 main section[data-outcome] [data-domain] .count {
-    width: 4ch;
+    width: 5ch;
     text-align: right;
 }
 
