@@ -71,6 +71,10 @@ h2 > span:first-of-type {
     opacity: 60%;
 }
 
+a {
+    text-decoration: none;
+}
+
 main {
 }
 
@@ -86,8 +90,53 @@ main section#summary #domainCount {
     font-size: large;
 }
 
+main section#summary #pageStats {
+    align-items: stretch;
+    display: flex;
+    flex-direction: column;
+}
+
 main section#summary #pageTiming {
-    font-size: small;
+    align-items: center;
+    display: flex;
+    font-size: 13px;
+    gap: 1em;
+    justify-content: space-between;
+}
+
+main section#summary #pageTiming:empty ~ details {
+    display: none;
+}
+
+main section#summary #pageStats > details {
+    font-size: 12px;
+    text-align: start;
+}
+
+main section#summary #pageStats > details summary {
+    cursor: pointer;
+    opacity: 0.6;
+    padding-inline-start: 2px;
+}
+
+main section#summary #pageStats > details aside {
+    border: 1px solid gray;
+    padding: 2px 4px;
+    text-align: left;
+    white-space: pre-line;
+}
+
+main section#summary #pageStats > details aside ul {
+    margin: 0;
+    padding-inline-start: 2em;
+}
+
+main section#summary #pageTiming > span {
+    padding: 2px 4px;
+}
+
+main section#summary #pageMemory {
+    display: none;
 }
 
 main section[data-outcome] {
@@ -159,6 +208,7 @@ main section[data-outcome] [data-domain][data-expanded="0"] + .urls {
 }
 
 main section[data-outcome] .expander {
+    cursor: pointer;
     white-space: nowrap;
 }
 

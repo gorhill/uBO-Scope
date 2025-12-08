@@ -40,7 +40,6 @@ const manifest = runtime.getManifest();
 const TABDETAILS_TEMPLATE = {
     domain: '',
     hostname: '',
-    timing: 0,
     allowed: new Map(),
     stealth: new Map(),
     blocked: new Map(),
@@ -116,6 +115,27 @@ function updateTabBadge(tabId) {
 
 /******************************************************************************/
 
+function getPageTiming() {
+    const entries = performance.getEntries();
+    const nav = entries.find(a => a.entryType === 'navigation') || {};
+    const fcp = entries.find(a => a.name === 'first-contentful-paint') || {};
+    return {
+        frb: Math.round(nav.responseStart || 0),
+        dcl: Math.round(nav.domInteractive || 0),
+        l: Math.round(nav.domComplete || 0),
+        fcp: Math.round(fcp.startTime || 0),
+    };
+}
+
+function getPageMemory() {
+    if ( typeof performance.measureUserAgentSpecificMemory !== 'function' ) {
+        return performance.memory?.usedJSHeapSize ?? 0;
+    }
+    return performance.measureUserAgentSpecificMemory().then(result => result.bytes);
+}
+
+/******************************************************************************/
+
 function getTabDetails(tabId, hostname) {
     let tabHostname = session.tabidToHostname.get(tabId);
     if ( tabHostname === undefined ) {
@@ -138,7 +158,6 @@ function getTabDetails(tabId, hostname) {
 function tabDetailsReset(tabDetails) {
     tabDetails.domain = '';
     tabDetails.hostname = '';
-    tabDetails.timing = 0;
     tabDetails.allowed.clear();
     tabDetails.stealth.clear();
     tabDetails.blocked.clear();
@@ -241,13 +260,6 @@ async function processNetworkRequestJournal() {
                 recordOutcome(tabId, request);
             }
             break;
-        case 'timing': {
-            const tabDetails = getTabDetails(tabId, request.hostname);
-            if ( tabDetails === undefined ) { break; }
-            if ( request.timing <= 0 ) { break; }
-            tabDetails.timing = request.timing;
-            break;
-        }
         default:
             break;
         }
@@ -295,32 +307,25 @@ runtime.onMessage.addListener((msg, sender, callback) => {
         });
         break;
     }
-    case 'getPageTiming': {
-        response = 0;
-        const tabDetails = getTabDetails(msg.tabId, msg.hostname);
-        if ( tabDetails === undefined ) { break; }
-        response = tabDetails.timing;
+    case 'getPageTiming':
+        response = browser.scripting.executeScript({
+            func: getPageTiming,
+            injectImmediately: true,
+            target: { tabId: msg.tabId }
+        }).then(results => results?.[0]?.result);
         break;
-    }
-    case 'setPageTiming': {
-        const tabId = sender?.tab?.id;
-        if ( Boolean(tabId) === false ) { break; }
-        networkRequestJournal.push({
-            event: 'timing',
-            tabId,
-            hostname: msg.hostname,
-            timing: msg.timing,
-        });
-        const tabDetails = getTabDetails(tabId, msg.hostname);
-        if ( tabDetails === undefined ) { break; }
-        tabDetails.timing = 0;
+    case 'getPageMemory':
+        response = browser.scripting.executeScript({
+            func: getPageMemory,
+            injectImmediately: true,
+            target: { tabId: msg.tabId }
+        }).then(results => results?.[0]?.result);
         break;
-    }
     default:
         break;
     }
     if ( response instanceof Promise ) {
-        response.then(r => { callback(r); });
+        response.then(r => { callback(r); }).catch(( ) => { callback() });
         return true;
     }
     callback(response);

@@ -51,6 +51,10 @@ let tabData = {};
 const expandableRealms = new Set();
 const expandedRealms = new Set();
 
+const numberFormatter = new Intl.NumberFormat(undefined, {
+    maximumSignificantDigits: 3,
+});
+
 /******************************************************************************/
 
 function textFromCount(count) {
@@ -104,6 +108,7 @@ function renderPanel() {
     const { domain: tabDomain } = tabData;
     dom.text('#tabHostname > span:last-of-type', punycode.toUnicode(tabDomain));
     renderTiming();
+    //renderMemory();
     if ( tabHostname !== tabDomain ) {
         dom.text('#tabHostname > span:first-of-type',
             punycode.toUnicode(tabHostname.slice(0, -tabDomain.length))
@@ -135,32 +140,82 @@ function renderPanelSection(topDomain, domainMap, outcome) {
     }
 }
 
-function renderTiming(timing) {
-    if ( typeof timing !== 'number' ) {
-        timing = tabData.timing;
-    } else {
-        tabData.timing = timing;
+/******************************************************************************/
+
+async function renderTiming() {
+    const parts = [
+        { name: 'frb', time: 0 },
+        { name: 'dcl', time: 0, rel: true },
+        { name: 'l', time: 0, rel: true },
+        { name: 'fcp', time: 0, rel: true },
+    ];
+    const data = await sendMessage({
+        what: 'getPageTiming',
+        tabId: tabData.tabId,
+    }) || {};
+    for ( const part of parts ) {
+        if ( data[part.name] === 0 ) { continue; }
+        part.time = data[part.name];
     }
-    if ( timing === 0 ) {
-        return self.setTimeout(( ) => {
-            sendMessage({
-                what: 'getPageTiming',
-                tabId: tabData.tabId,
-                hostname: tabData.hostname,
-            }).then(renderTiming);
-        }, 1000);
+    parts.sort((a, b) => a.time - b.time);
+    const fragment = document.createDocumentFragment();
+    const slice = 800;
+    for ( const part of parts ) {
+        const node = nodeFromTemplate(part.name, 'span');
+        let time = Math.max(part.time, 0);
+        const text = time < 1000
+            ? `${numberFormatter.format(time)} ms`
+            : `${numberFormatter.format(time / 1000)} sec`;
+        let h = 0;
+        if ( part.time < slice ) {
+            h = 120 - Math.round(part.time * 40 / slice);
+        } else if ( part.time < slice*2 ) {
+            h = 80 - Math.round((part.time - slice) * 40 / slice);
+        } else {
+            h = 40 - Math.min(Math.round((part.time - slice*2) * 40 / slice), 40);
+        }
+        node.style.borderColor = `hsl(${h} 100% 40%)`;
+        dom.text(qs$(node, 'span'), text);
+        fragment.append(node);
     }
-    const unit = timing > 1000 ? 'second' : 'millisecond' ;
-    if ( unit === 'second' ) {
-        timing /= 1000;
+    dom.clear('#pageTiming');
+    qs$('#pageTiming').append(fragment);
+    if ( parts.some(a => a.time === 0) ) {
+        return self.setTimeout(renderTiming, 1000);
     }
-    const intl = new Intl.NumberFormat(undefined, {
-        notation: 'compact',
-        maximumSignificantDigits: 3,
-        style: 'unit',
-        unit,
+    timingStatsPromise.then((stats = []) => {
+        const s = JSON.stringify({ hn: tabData.hostname, parts });
+        if ( stats.length !== 0 && stats[0] === s ) { return; }
+        stats.unshift(s);
+        if ( stats.length > 20 ) {
+            stats = stats.slice(0, 20);
+        }
+        sessionWrite('timingStats', stats);
     });
-    dom.text('#pageTiming > span', intl.format(timing));
+}
+
+const timingStatsPromise = sessionRead('timingStats');
+
+/******************************************************************************/
+
+async function renderMemory() {
+    let bytes = await sendMessage({
+        what: 'getPageMemory',
+        tabId: tabData.tabId,
+    }) || 0;
+    let unit = '';
+    if ( bytes < 1000000 ) {
+        unit = 'KB';
+        bytes /= 1000;
+    } else if ( bytes < 1000000000 ) {
+        unit = 'MB';
+        bytes /= 1000000;
+    } else {
+        unit = 'GB';
+        bytes /= 1000000000;
+    }
+    dom.text('#pageMemory > span', `${numberFormatter.format(bytes)} ${unit}`);
+    self.setTimeout(renderMemory, 2500);
 }
 
 /******************************************************************************/

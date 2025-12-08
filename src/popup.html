@@ -13,8 +13,17 @@
 <h2 id="tabHostname"><span></span><span>NO DATA</span></h2>
 <main>
     <section id="summary">
+        <span id="pageStats">
+            <span id="pageTiming"></span>
+            <span id="pageMemory">page memory: <span>&hellip;</span></span>
+            <details><summary>info</summary><aside>Browser extensions &amp; cache influence these values &ndash; results may vary across page reloads.
+                <ul><li><b>loading</b>: time to page load started. <a href="https://developer.mozilla.org/en-US/docs/Glossary/Time_to_first_byte" target="_blank">MDN</a>
+                <li><b>interactive</b>: time to page construction completed. <a href="https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming/domInteractive" target="_blank">MDN</a>
+                <li><b>complete</b>: time to page load completed. <a href="https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming/domComplete" target="_blank">MDN</a>
+                <li><b>visible</b>: time when users can start consuming page content. <a href="https://developer.mozilla.org/en-US/docs/Glossary/First_contentful_paint" target="_blank">MDN</a>
+                </ul></aside></details>
+        </span>
         <span id="domainCount">domains connected: <span>?</span></span>
-        <span id="pageTiming">page load time: <span>&hellip;</span></span>
     </section>
     <section data-outcome="allowed">
         <h3>not blocked</h3>
@@ -39,7 +48,23 @@
 </template>
 
 <template id="urlRow">
-    <li><span class="type"></span><a href="" class="url" target="_blank"><span class="subdomain"></span><span class="domain"></span><span class="path"></span></a></li>
+    <li><span class="type"></span><a href="#" class="url" target="_blank"><span class="subdomain"></span><span class="domain"></span><span class="path"></span></a></li>
+</template>
+
+<template id="frb">
+<span style="border:2px solid hsl(120 100% 40%);">loading<br><span>&hellip;</span></span>
+</template>
+
+<template id="fcp">
+<span style="border:4px solid hsl(120 100% 40%);">visible<br><span>&hellip;</span></span>
+</template>
+
+<template id="dcl">
+<span style="border:2px solid hsl(120 100% 40%);">interactive<br><span>&hellip;</span></span>
+</template>
+
+<template id="l">
+<span style="border:2px solid hsl(120 100% 40%);">complete<br><span>&hellip;</span></span>
 </template>
 
 <script src="js/popup.js" type="module"></script>
