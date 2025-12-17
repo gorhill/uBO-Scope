@@ -57,7 +57,7 @@ body.loading {
     visibility: hidden;
 }
 
-h2 {
+header {
     align-items: center;
     background: rgb(179 198 250 / 15%);
     display: flex;
@@ -67,7 +67,7 @@ h2 {
     margin: 0;
     min-height: 3em;
 }
-h2 > span:first-of-type {
+header > span:first-of-type {
     opacity: 60%;
 }
 
@@ -81,62 +81,144 @@ main {
 main section#summary {
     display: flex;
     flex-direction: column;
-    gap: 0.5em;
+    gap: 1em;
     padding: 1em;
-    text-align: center;
 }
 
-main section#summary #domainCount {
-    font-size: large;
+h3 {
+    align-self: center;
+    font-size: 1.2em;
+    font-weight: normal;
+    margin: 0;
 }
 
 main section#summary #pageStats {
     align-items: stretch;
     display: flex;
     flex-direction: column;
+    font-size: 12px;
+    gap: 0.5em;
 }
 
-main section#summary #pageTiming {
-    align-items: center;
-    display: flex;
-    font-size: 13px;
-    gap: 1em;
-    justify-content: space-between;
-}
-
-main section#summary #pageTiming:empty ~ details {
+main section#summary #pageStats:has(#pageTiming:empty) {
     display: none;
 }
 
-main section#summary #pageStats > details {
-    font-size: 12px;
-    text-align: start;
+main section#summary .pageTimeline {
+    align-items: flex-start;
+    border-left: 1px solid gray;
+    border-right: 1px solid gray;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    white-space: nowrap;
+    width: 100%;
 }
 
-main section#summary #pageStats > details summary {
-    cursor: pointer;
-    opacity: 0.6;
-    padding-inline-start: 2px;
-}
-
-main section#summary #pageStats > details aside {
+main section#summary .pageTimeline .bar {
+    align-items: center;
     border: 1px solid gray;
-    padding: 2px 4px;
-    text-align: left;
-    white-space: pre-line;
+    border-top: 0;
+    border-bottom: 0;
+    box-sizing: border-box;
+    display: flex;
+    height: 1.6lh;
+    position: relative;
 }
 
-main section#summary #pageStats > details aside ul {
-    margin: 0;
-    padding-inline-start: 2em;
+main section#summary .pageTimeline .bar > span {
+    padding: 0 3px;
+    transform: translateX(-100%);
 }
 
-main section#summary #pageTiming > span {
-    padding: 2px 4px;
+main section#summary .pageTimeline .fcp {
+    border-left: 1px dashed blue;
+    border-right: 1px dashed blue;
+    bottom: 16px;
+    box-sizing: border-box;
+    position: absolute;
+    top: -4px;
+}
+
+main section#summary .pageTimeline .ticks {
+    border-top: 1px solid gray;
+    box-sizing: border-box;
+    display: flex;
+    width: 100%;
+}
+main section#summary .pageTimeline .ticks > span {
+    border-left: 1px solid gray;
+    flex-grow: 1;
+    height: 6px;
+}
+main section#summary .pageTimeline .ticks > span:first-child {
+    border-left: 0;
+}
+
+main section#summary .pageTimeline .labels {
+    box-sizing: border-box;
+    display: flex;
+    font-size: 11px;
+    width: 100%;
+}
+main section#summary .pageTimeline .labels > span {
+    border-left: 1px solid gray;
+    text-align: center;
+    width: calc(100% / 4);
+}
+main section#summary .pageTimeline .labels > span:first-child {
+    border-left: 0;
 }
 
 main section#summary #pageMemory {
     display: none;
+}
+
+main section#summary #pageStats aside[data-name] menu {
+    display: flex;
+    gap: 0.5em;
+    justify-content: space-between;
+    list-style-type: none;
+    margin: 0;
+    padding: 2px 2px 0 2px;
+}
+
+main section#summary #pageStats aside[data-name] menu li {
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+main section#summary #pageStats aside[data-name="info"] menu li[data-name="info"],
+main section#summary #pageStats aside[data-name="history"] menu li[data-name="history"] {
+    font-weight: bold;
+    opacity: 1;
+}
+
+main section#summary #pageStats aside[data-name] menu li {
+}
+
+main section#summary #pageStats aside[data-name] div[data-name] {
+    border: 1px dotted gray;
+}
+
+main section#summary #pageStats aside[data-name] div[data-name] {
+    display: none;
+}
+
+main section#summary #pageStats aside[data-name="info"] div[data-name="info"] {
+    display: block;
+}
+
+main section#summary #pageStats aside[data-name="info"] div[data-name="info"] ul {
+    padding-inline-start: 2em;
+}
+
+main section#summary #pageStats aside[data-name="history"] div[data-name="history"] {
+    border: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
 
 main section[data-outcome] {

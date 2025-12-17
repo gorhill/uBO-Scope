@@ -10,20 +10,28 @@
 </head>
 
 <body class="loading">
-<h2 id="tabHostname"><span></span><span>NO DATA</span></h2>
+<header id="tabHostname"><span></span><span>NO DATA</span></header>
 <main>
     <section id="summary">
-        <span id="pageStats">
-            <span id="pageTiming"></span>
-            <span id="pageMemory">page memory: <span>&hellip;</span></span>
-            <details><summary>info</summary><aside>Browser extensions &amp; cache influence these values &ndash; results may vary across page reloads.
-                <ul><li><b>loading</b>: time to page load started. <a href="https://developer.mozilla.org/en-US/docs/Glossary/Time_to_first_byte" target="_blank">MDN</a>
-                <li><b>interactive</b>: time to page construction completed. <a href="https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming/domInteractive" target="_blank">MDN</a>
-                <li><b>complete</b>: time to page load completed. <a href="https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming/domComplete" target="_blank">MDN</a>
-                <li><b>visible</b>: time when users can start consuming page content. <a href="https://developer.mozilla.org/en-US/docs/Glossary/First_contentful_paint" target="_blank">MDN</a>
-                </ul></aside></details>
-        </span>
-        <span id="domainCount">domains connected: <span>?</span></span>
+        <h3 id="domainCount">domains connected: <span>?</span></h3>
+        <div id="pageStats">
+            <h3>page load time</h3>
+            <div id="pageTiming" class="pageTiming"></div>
+            <div id="pageMemory">page memory: <span>&hellip;</span></div>
+            <aside data-name="">
+                <menu><li data-name="info">what's this?<li data-name="history">previous results</menu>
+                <div data-name="info">Browser extensions and cache influence these values &ndash; results may vary across page reloads.
+                <ul>
+                    <li>The x-axis represents time in seconds using a fixed scale of [0, 2.4]. The scale is fixed to make it easy to compare different resultsets.
+                    <li>The colored bar shows when the page started to load and when it finished loading.
+                    <li><b>start of the bar</b>: time when the first response byte was received. <a href="https://developer.mozilla.org/en-US/docs/Glossary/Time_to_first_byte" target="_blank">MDN</a>
+                    <li><b>end of the bar</b>: time when the page and all its resources were loaded. <a href="https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming/domComplete" target="_blank">MDN</a>
+                    <li><b>dotted blue vertical line</b>: time when users can start consuming page content. <a href="https://developer.mozilla.org/en-US/docs/Glossary/First_contentful_paint" target="_blank">MDN</a>
+                </ul>
+                </div>
+                <div data-name="history" class="pageTiming"></div>
+            </aside>
+        </div>
     </section>
     <section data-outcome="allowed">
         <h3>not blocked</h3>
@@ -51,20 +59,33 @@
     <li><span class="type"></span><a href="#" class="url" target="_blank"><span class="subdomain"></span><span class="domain"></span><span class="path"></span></a></li>
 </template>
 
-<template id="frb">
-<span style="border:2px solid hsl(120 100% 40%);">loading<br><span>&hellip;</span></span>
-</template>
-
-<template id="fcp">
-<span style="border:4px solid hsl(120 100% 40%);">visible<br><span>&hellip;</span></span>
-</template>
-
-<template id="dcl">
-<span style="border:2px solid hsl(120 100% 40%);">interactive<br><span>&hellip;</span></span>
-</template>
-
-<template id="l">
-<span style="border:2px solid hsl(120 100% 40%);">complete<br><span>&hellip;</span></span>
+<template id="pageTimeline">
+    <div class="pageTimeline">
+        <div class="bar"></div>
+        <div class="fcp"></div>
+        <div class="ticks">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="labels">
+            <span>0.2</span>
+            <span>0.6</span>
+            <span>1.0</span>
+            <span>1.4</span>
+            <span>1.8</span>
+            <span>2.2</span>
+        </div>
+    </div>
 </template>
 
 <script src="js/popup.js" type="module"></script>

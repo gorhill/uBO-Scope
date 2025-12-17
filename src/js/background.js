@@ -121,7 +121,6 @@ function getPageTiming() {
     const fcp = entries.find(a => a.name === 'first-contentful-paint') || {};
     return {
         frb: Math.round(nav.responseStart || 0),
-        dcl: Math.round(nav.domInteractive || 0),
         l: Math.round(nav.domComplete || 0),
         fcp: Math.round(fcp.startTime || 0),
     };

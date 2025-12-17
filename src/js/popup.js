@@ -55,6 +55,8 @@ const numberFormatter = new Intl.NumberFormat(undefined, {
     maximumSignificantDigits: 3,
 });
 
+const timingStatsHistory = sessionRead('timingStats');
+
 /******************************************************************************/
 
 function textFromCount(count) {
@@ -143,58 +145,69 @@ function renderPanelSection(topDomain, domainMap, outcome) {
 /******************************************************************************/
 
 async function renderTiming() {
-    const parts = [
-        { name: 'frb', time: 0 },
-        { name: 'dcl', time: 0, rel: true },
-        { name: 'l', time: 0, rel: true },
-        { name: 'fcp', time: 0, rel: true },
-    ];
     const data = await sendMessage({
         what: 'getPageTiming',
         tabId: tabData.tabId,
     }) || {};
-    for ( const part of parts ) {
-        if ( data[part.name] === 0 ) { continue; }
-        part.time = data[part.name];
-    }
-    parts.sort((a, b) => a.time - b.time);
-    const fragment = document.createDocumentFragment();
-    const slice = 800;
-    for ( const part of parts ) {
-        const node = nodeFromTemplate(part.name, 'span');
-        let time = Math.max(part.time, 0);
-        const text = time < 1000
-            ? `${numberFormatter.format(time)} ms`
-            : `${numberFormatter.format(time / 1000)} sec`;
-        let h = 0;
-        if ( part.time < slice ) {
-            h = 120 - Math.round(part.time * 40 / slice);
-        } else if ( part.time < slice*2 ) {
-            h = 80 - Math.round((part.time - slice) * 40 / slice);
-        } else {
-            h = 40 - Math.min(Math.round((part.time - slice*2) * 40 / slice), 40);
-        }
-        node.style.borderColor = `hsl(${h} 100% 40%)`;
-        dom.text(qs$(node, 'span'), text);
-        fragment.append(node);
-    }
-    dom.clear('#pageTiming');
-    qs$('#pageTiming').append(fragment);
-    if ( parts.some(a => a.time === 0) ) {
+    const widget = createTimingWidget(data);
+    dom.clear('#pageStats > .pageTiming');
+    qs$('#pageStats > .pageTiming').append(widget);
+    if ( Object.keys(data).some(a => data[a] === 0) ) {
         return self.setTimeout(renderTiming, 1000);
     }
-    timingStatsPromise.then((stats = []) => {
-        const s = JSON.stringify({ hn: tabData.hostname, parts });
-        if ( stats.length !== 0 && stats[0] === s ) { return; }
-        stats.unshift(s);
+    const result = { hn: tabData.hostname, data };
+    timingStatsHistory.then((stats = []) => {
+        if ( stats.length !== 0 ) {
+            if ( hashFromData(stats[0]) === hashFromData(result) ) { return stats; }
+        }
+        stats.unshift(result);
         if ( stats.length > 20 ) {
             stats = stats.slice(0, 20);
         }
         sessionWrite('timingStats', stats);
+        return stats;
+    }).then((history = []) => {
+        for ( const entry of history ) {
+            if ( entry.hn !== tabData.hostname ) { continue; }
+            if ( hashFromData(entry) === hashFromData(result) ) { continue; }
+            const widget = createTimingWidget(entry.data);
+            qs$('#pageStats aside div[data-name="history"]').append(widget);
+        }
     });
 }
 
-const timingStatsPromise = sessionRead('timingStats');
+function hashFromData(entry) {
+    return [ entry.hn, entry.data.frb, entry.data.l, entry.data.fcp ].join();
+}
+
+/******************************************************************************/
+
+function createTimingWidget(data) {
+    const t1 = 2400;
+    const root = nodeFromTemplate('pageTimeline', '.pageTimeline');
+    renderBar(qs$(root, '.bar'), data.frb, data.l, t1);
+    qs$(root, '.fcp').style.left = `calc(${positionFromTime(data.fcp, t1)}% - 1px)`;
+    return root;
+}
+
+function renderBar(node, ta, tb, t1) {
+    const left = positionFromTime(ta, t1);
+    const right = Math.min(positionFromTime(tb, t1), 100);
+    node.style.left = `${left}%`;
+    node.style.width = `max(${right - left}%, 1px)`;
+    const fromColor = colorFromTime(ta, t1);
+    const toColor = colorFromTime(tb, t1);
+    node.style.background = `linear-gradient(to right in hsl shorter hue, ${fromColor}, ${toColor})`;
+}
+
+function positionFromTime(t, t1) {
+    return t / t1 * 100;
+}
+
+function colorFromTime(t, t1) {
+    const h = 120 * (1 - Math.min(Math.max(t, 0), t1) / t1);
+    return `hsl(${h} 100% 50%)`;
+}
 
 /******************************************************************************/
 
@@ -290,30 +303,42 @@ if ( extensionOrigin.startsWith('safari-web-extension:') ) {
     if ( tab instanceof Object === false ) { return true; }
     Object.assign(currentTab, tab);
 
-    sendMessage({
-        what: 'getTabData',
-        tabId: currentTab.id,
-        hostname: hostnameFromURI(tab.url),
-    }).then(s => {
+    {
+        const s = await sendMessage({
+            what: 'getTabData',
+            tabId: currentTab.id,
+            hostname: hostnameFromURI(tab.url),
+        });
         const response = deserialize(s);
-        if ( response ) {
-            tabData = response;
+        if ( response ) { tabData = response; }
+    }
+
+    renderPanel();
+
+    {
+        const s = await sessionRead('popup.expandedRealms');
+        if ( typeof s === 'string' ) {
+            const expanded = deserialize(s);
+            if ( expanded instanceof Set ) {
+                for ( const key of expanded ) {
+                    expandedRealms.add(key);
+                    toggleExpand(key, true, false);
+                }
+            }
         }
-        renderPanel();
-        return sessionRead('popup.expandedRealms');
-    }).then(s => {
-        if ( typeof s !== 'string' ) { return; }
-        const expanded = deserialize(s);
-        if ( expanded instanceof Set === false ) { return; }
-        for ( const key of expanded ) {
-            expandedRealms.add(key);
-            toggleExpand(key, true, false);
-        }
-    }).finally(( ) => {
-        dom.cl.toggle(dom.body, 'fitViewport',
-            Math.abs(dom.body.clientWidth - dom.html.clientWidth) > 16
-        );
-        dom.cl.remove(dom.body, 'loading');
-        dom.on('main', 'click', 'section .expander', onToggleExpand);
+    }
+
+    dom.cl.toggle(dom.body, 'fitViewport',
+        Math.abs(dom.body.clientWidth - dom.html.clientWidth) > 16
+    );
+    dom.cl.remove(dom.body, 'loading');
+    dom.on('#pageStats menu > li', 'click', ev => {
+        const li = ev.target.closest('li');
+        if ( li === null ) { return; }
+        const owner = li.closest('aside');
+        owner.dataset.name = li.dataset.name !== owner.dataset.name
+            ? li.dataset.name
+            : '';
     });
+    dom.on('main', 'click', 'section .expander', onToggleExpand);
 })();
