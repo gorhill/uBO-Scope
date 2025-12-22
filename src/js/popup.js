@@ -51,6 +51,10 @@ let tabData = {};
 const expandableRealms = new Set();
 const expandedRealms = new Set();
 
+const twoDigitNumberFormatter = new Intl.NumberFormat(undefined, {
+    maximumSignificantDigits: 2,
+});
+
 const numberFormatter = new Intl.NumberFormat(undefined, {
     maximumSignificantDigits: 3,
 });
@@ -198,6 +202,9 @@ function renderBar(node, ta, tb, t1) {
     const fromColor = colorFromTime(ta, t1);
     const toColor = colorFromTime(tb, t1);
     node.style.background = `linear-gradient(to right in hsl shorter hue, ${fromColor}, ${toColor})`;
+    if ( tb > t1 ) {
+        dom.text(qs$(node, '.bar > span'), `${twoDigitNumberFormatter.format(tb / 1000)}\u2192`);
+    }
 }
 
 function positionFromTime(t, t1) {
@@ -205,8 +212,10 @@ function positionFromTime(t, t1) {
 }
 
 function colorFromTime(t, t1) {
-    const h = 120 * (1 - Math.min(Math.max(t, 0), t1) / t1);
-    return `hsl(${h} 100% 50%)`;
+    const tnormalized = Math.min(Math.max(t, 0), t1) / t1;
+    const h = 120 * (1 - tnormalized);
+    const l = 38 + 12 * tnormalized;
+    return `hsl(${h} 100% ${l}%)`;
 }
 
 /******************************************************************************/

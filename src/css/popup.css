@@ -118,18 +118,15 @@ main section#summary .pageTimeline {
 
 main section#summary .pageTimeline .bar {
     align-items: center;
-    border: 1px solid gray;
-    border-top: 0;
-    border-bottom: 0;
     box-sizing: border-box;
     display: flex;
     height: 1.6lh;
+    justify-content: flex-end;
     position: relative;
 }
 
-main section#summary .pageTimeline .bar > span {
-    padding: 0 3px;
-    transform: translateX(-100%);
+main section#summary .pageTimeline .bar > span:empty {
+    display: none;
 }
 
 main section#summary .pageTimeline .fcp {
@@ -139,6 +136,12 @@ main section#summary .pageTimeline .fcp {
     box-sizing: border-box;
     position: absolute;
     top: -4px;
+}
+
+@media (prefers-color-scheme: dark) {
+    main section#summary .pageTimeline .fcp {
+        border-color: steelblue;
+    }
 }
 
 main section#summary .pageTimeline .ticks {

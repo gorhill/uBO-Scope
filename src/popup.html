@@ -25,7 +25,7 @@
                     <li>The colored bar shows when the page started to load and when it finished loading.
                     <li><b>start of the bar</b>: time when the first response byte was received. <a href="https://developer.mozilla.org/en-US/docs/Glossary/Time_to_first_byte" target="_blank">MDN</a>
                     <li><b>end of the bar</b>: time when the page and all its resources were loaded. <a href="https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming/domComplete" target="_blank">MDN</a>
-                    <li><b>dotted blue vertical line</b>: time when users can start viewing page content. <a href="https://developer.mozilla.org/en-US/docs/Glossary/First_contentful_paint" target="_blank">MDN</a>
+                    <li><b>dotted vertical line</b>: time when page content started to be visible. <a href="https://developer.mozilla.org/en-US/docs/Glossary/First_contentful_paint" target="_blank">MDN</a>
                 </ul>
                 </div>
                 <div data-name="history" class="pageTiming"></div>
@@ -60,7 +60,7 @@
 
 <template id="pageTimeline">
     <div class="pageTimeline">
-        <div class="bar"></div>
+        <div class="bar"><span></span></div>
         <div class="fcp"></div>
         <div class="ticks">
             <span></span>
