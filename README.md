@@ -1,8 +1,9 @@
 ## uBO Scope
 
-| Chrome | Install from ... | Firefox | Install from ... | Safari | Install from... |
-| --- | --- | --- | --- | --- | --- |
-| <img src="https://github.com/user-attachments/assets/d5033882-0c94-424f-9e8b-e00ed832acf7" alt="Get uBO Lite for Chromium"> | <a href="https://chromewebstore.google.com/detail/ubo-scope/bbdpgcaljkaaigfcomhidmneffjjjfgp">Chrome Web Store</a> | <img src="https://github.com/user-attachments/assets/8a33b8ba-57ee-4a54-a83c-7d21f9b2dafb" alt="Get uBlock Origin Lite for Firefox"> | <a href="https://addons.mozilla.org/firefox/addon/ubo-scope/">Firefox Add-ons</a> | <img src="https://github.com/user-attachments/assets/d267b13e-b403-4040-93ea-fff38fea8c1b" alt="Get uBlock Origin Lite for Safari"> | Beta: <a href="https://testflight.apple.com/join/RZTukjVE">TestFlight</a>
+| Browser | Install from ... | Browser | Install from ... |
+| --- | --- | --- | --- |
+| <img src="https://github.com/user-attachments/assets/d5033882-0c94-424f-9e8b-e00ed832acf7" alt="Get uBO Scope for Chromium"> | <a href="https://chromewebstore.google.com/detail/ubo-scope/bbdpgcaljkaaigfcomhidmneffjjjfgp">Chrome Web Store</a> | <img src="https://github.com/user-attachments/assets/8a33b8ba-57ee-4a54-a83c-7d21f9b2dafb" alt="Get uBO Scope for Firefox"> | <a href="https://addons.mozilla.org/firefox/addon/ubo-scope/">Firefox Add-ons</a> |
+| <img src="https://github.com/user-attachments/assets/acff1f85-d3f0-49eb-928e-7c43c5ef8f6c" alt="Get uBO Scope for Microsoft Edge"> | <a href="https://microsoftedge.microsoft.com/addons/detail/ublock-origin-scope/epeadigopeefdedphdmpknbpjjkijlla">Edge Add-ons</a> | <img src="https://github.com/user-attachments/assets/d267b13e-b403-4040-93ea-fff38fea8c1b" alt="Get uBO Scope for Safari"> | Safari: <a href="https://testflight.apple.com/join/RZTukjVE">TestFlight</a>
 
 ## Purpose
 
