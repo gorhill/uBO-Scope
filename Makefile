@@ -37,12 +37,23 @@ publish-edge:
 		ghrepo=uBO-Scope \
 		ghtag=$(version) \
 		ghasset=chromium \
-		storeid=maybe \
-		productid=$(maybe)
+		storeid=epeadigopeefdedphdmpknbpjjkijlla \
+		productid=uboscope_edge_id \
+		notes="See release notes at https://github.com/gorhill/uBO-Scope/releases"
 
 # Usage: make publish-firefox version=?
 publish-firefox:
 	node publish-extension/publish-firefox.js \
+		ghowner=gorhill \
+		ghrepo=uBO-Scope \
+		ghtag=$(version) \
+		ghasset=firefox \
+		storeid=uBO-Scope@raymondhill.net \
+		channel=listed
+
+# Usage: make upload-firefox version=?
+upload-firefox:
+	node publish-extension/upload-firefox.js \
 		ghowner=gorhill \
 		ghrepo=uBO-Scope \
 		ghtag=$(version) \
